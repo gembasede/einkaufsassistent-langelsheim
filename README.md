@@ -38,6 +38,7 @@ python -m http.server 8080 --directory web
 ### Vercel Deployment & GitHub Repository
 - **GitHub Repository:** `https://github.com/gembasede/einkaufsassistent-langelsheim`
 - **Vercel Standalone Projekt:** `einkaufsassistent-langelsheim`
+- **Live-URL:** `https://einkaufsassistent-langelsheim.vercel.app`
 - **Routing:** Automatische Weiterleitung via `vercel.json` im Hauptverzeichnis direkt auf `web/index.html`.
 - Deployment via Git: Ein `git push` zu GitHub triggert automatisch den Vercel-Livebuild.
 
