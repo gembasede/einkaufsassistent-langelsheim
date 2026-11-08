@@ -10,3 +10,6 @@ Alle relevanten Änderungen an diesem Projekt werden in dieser Datei dokumentier
 - Paketinstallation für `PyMuPDF` und `Pillow` zur PDF- und Bildverarbeitung.
 - Skript `scripts/download_prospekte.py` für automatischen Download, Assemblierung und Verifikation.
 - Phase 1 erfolgreich abgeschlossen: Alle 4 Prospekte für KW 46 (09.11.2026 - 14.11.2026) für Langelsheim heruntergeladen und verifiziert (`ALDI_Nord.pdf`, `PENNY.pdf`, `Netto_Marken_Discount.pdf`, `REWE.pdf`).
+- Phase 2 erfolgreich abgeschlossen: Skript `scripts/extract_deals.py` zur Validierung von 31 Angeboten und mathematischer Grundpreisprüfung in `angebote.json`.
+- Phase 3 erfolgreich abgeschlossen: Skript `scripts/extract_images.py` zum hochauflösenden Zuschneiden von 15 Produktbildern und `scripts/generate_report.py` zur Erstellung des visuellen Wochenberichts als `wochenbericht.html` und `wochenbericht.pdf`.
+- Phase 4 vorbereitet: Einrichtung der wöchentlichen Antigravity-Automatisierung für Sonntags um 08:00 Uhr.

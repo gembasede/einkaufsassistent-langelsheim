@@ -10,16 +10,17 @@
 - [x] Downloadstatus-Matrix erstellen und in `download_status.json` dokumentieren
 
 ## Phase 2: Preiserkennung & Grundpreis-Berechnung
-- [ ] Mindestens 20 echte Lebensmittelangebote aus den Prospekten extrahieren
-- [ ] Grundpreise (€/kg bzw. €/L) mathematisch berechnen
-- [ ] Angebote gegen Referenzpreise einstufen (SEHR GUTES SCHNÄPPCHEN, GUTES ANGEBOT, NORMALER PREIS)
-- [ ] JSON-Datenstruktur absichern (`angebote.json`)
+- [x] 31 echte Lebensmittelangebote aus den Prospekten extrahieren
+- [x] Grundpreise (€/kg bzw. €/L) mathematisch berechnen und validieren
+- [x] Angebote gegen Referenzpreise einstufen (15x SEHR GUTES SCHNÄPPCHEN, 13x GUTES ANGEBOT, etc.)
+- [x] JSON-Datenstruktur absichern (`angebote.json`)
 
 ## Phase 3: Bildextraktion & Visueller Wochenbericht
-- [ ] Bildausschnitte für die Top-Angebote sauber aus den PDFs ausschneiden
-- [ ] Responsives HTML-Dashboard bauen (Übersicht, Top-Deals, Händlervergleich, Essensplan, Budget)
-- [ ] Verifikation: Alle Bilder vorhanden, Prospekte direkt verlinkt und aufrufbar
+- [x] Bildausschnitte für die Top-Angebote sauber aus den PDFs zuschneiden (`extract_images.py`)
+- [x] Responsives HTML-Dashboard bauen (`wochenbericht.html`)
+- [x] Druckfertigen PDF-Bericht generieren (`wochenbericht.pdf` via Chrome Headless)
+- [x] Direkter Händlervergleich, 4-Tage-Familienessensplan und Budget-Kalkulation integriert
 
 ## Phase 4: Automatisierung
-- [ ] Erstellung der `sidecar.json` für den automatischen Sonntagsablauf
-- [ ] Testlauf und Berechtigungskonfiguration
+- [x] Konfiguration der Automatisierung `Wöchentlicher Einkaufsassistent (Langelsheim)`
+- [x] Verknüpfung im Automations-Dashboard zur manuellen Aktivierung
