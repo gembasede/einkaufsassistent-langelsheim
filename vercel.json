@@ -1,0 +1,21 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/web/index.html"
+    },
+    {
+      "source": "/images/(.*)",
+      "destination": "/web/images/$1"
+    },
+    {
+      "source": "/brochures/(.*)",
+      "destination": "/web/brochures/$1"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/web/manifest.json"
+    }
+  ]
+}
