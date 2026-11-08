@@ -33,3 +33,5 @@
 - [x] PWA-Manifest (`manifest.json`) und Vercel-Konfiguration (`vercel.json`)
 - [x] Nahtlose Verlinkung als Hero-Banner in `FamilienZentrale` (`src/app/prospekte/page.tsx`)
 - [x] Vollständiger TypeScript-Typcheck fehlerfrei bestanden
+- [x] Live-Bereitstellung in `public/angebots-radar/` für Vercel-Hosting via `git push`
+- [x] Vercel-Projekt `einkaufsassistent-langelsheim` angelegt und Team-Autorisierung abgeschlossen
