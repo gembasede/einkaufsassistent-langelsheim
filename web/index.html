@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Einkaufs-Assistent Langelsheim</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #2563eb;
+            --primary-bg: #eff6ff;
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --warning: #d97706;
+            --warning-bg: #fef3c7;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-dark);
+            padding-bottom: 74px; /* Platz für Bottom Navigation */
+            font-size: 15px;
+        }
+        
+        /* Top App Bar */
+        .app-bar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .app-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .app-badge {
+            font-size: 0.72rem;
+            background: rgba(255,255,255,0.22);
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-weight: 600;
+        }
+        
+        /* Bottom Tab Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--bg-card);
+            display: flex;
+            border-top: 1px solid var(--border);
+            z-index: 50;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: color 0.15s;
+        }
+        .nav-item.active {
+            color: var(--primary-light);
+        }
+        .nav-icon {
+            font-size: 1.25rem;
+        }
+        .nav-badge {
+            position: absolute;
+            top: 6px;
+            right: 28%;
+            background: #ef4444;
+            color: white;
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 99px;
+            font-weight: bold;
+        }
+        
+        /* Container & Tabs */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 14px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Search & Filter Bar */
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: white;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .search-box:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+        }
+        .filter-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+            scrollbar-width: none;
+        }
+        .filter-chips::-webkit-scrollbar { display: none; }
+        .chip {
+            white-space: nowrap;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+        .chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Deal Cards */
+        .deals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .deal-card {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+        .deal-img-wrap {
+            height: 150px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+        }
+        .deal-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .deal-content {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .deal-store {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .deal-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 4px 0 8px 0;
+            line-height: 1.25;
+        }
+        .price-badge-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .deal-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .deal-baseprice {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .rating-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 99px;
+            margin-bottom: 8px;
+        }
+        .rating-schnaeppchen { background: var(--success-bg); color: var(--success); }
+        .rating-angebot { background: var(--primary-bg); color: var(--primary-light); }
+        .rating-normal { background: var(--warning-bg); color: var(--warning); }
+        
+        .btn-add-list {
+            width: 100%;
+            padding: 9px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.15s;
+        }
+        .btn-add-list.added {
+            background: var(--success);
+        }
+        
+        /* Shopping Checklist Tab */
+        .list-header {
+            background: white;
+            border-radius: var(--radius);
+            padding: 14px;
+            border: 1px solid var(--border);
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .list-store-group {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+        .list-store-title {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+        .list-item {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item.checked {
+            background: #f8fafc;
+            opacity: 0.55;
+        }
+        .list-item.checked .item-text {
+            text-decoration: line-through;
+        }
+        .custom-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        .list-item.checked .custom-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+        .item-text {
+            flex-grow: 1;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .item-price {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+        .btn-delete-item {
+            color: #94a3b8;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            padding: 4px;
+            cursor: pointer;
+        }
+        .add-custom-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .add-custom-input {
+            flex-grow: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+        .btn-add-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        /* Brochure Viewer Tab */
+        .viewer-controls {
+            background: white;
+            padding: 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .viewer-nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .viewer-select {
+            padding: 9px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-weight: 600;
+            background: white;
+            font-size: 0.92rem;
+            width: 100%;
+        }
+        .viewer-img-container {
+            background: #1e293b;
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 480px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .viewer-page-img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        .btn-nav-page {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-nav-page:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        
+        /* Meal Plan Tab */
+        .meal-card {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .meal-day {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--primary-light);
+            text-transform: uppercase;
+        }
+        .meal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 4px 0 8px 0;
+        }
+        .meal-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="app-bar">
+        <div class="app-title">
+            🛒 Angebotsradar
+            <span class="app-badge">Langelsheim • KW 46</span>
+        </div>
+        <div style="font-size: 0.8rem; opacity: 0.9;">09.11. – 14.11.</div>
+    </div>
+
+    <div class="container">
+
+        <!-- TAB 1: ANGEBOTE -->
+        <div id="tab-deals" class="tab-content active">
+            <input type="text" id="dealSearch" class="search-box" placeholder="🔍 Angebote durchsuchen (z. B. Hackfleisch, Pasta, Bio)..." oninput="filterDeals()">
+            
+            <div class="filter-chips">
+                <button class="chip active" onclick="setStoreFilter('all', this)">Alle Märkte</button>
+                <button class="chip" onclick="setStoreFilter('ALDI Nord', this)">ALDI Nord</button>
+                <button class="chip" onclick="setStoreFilter('PENNY', this)">PENNY</button>
+                <button class="chip" onclick="setStoreFilter('Netto Marken-Discount', this)">Netto</button>
+                <button class="chip" onclick="setStoreFilter('REWE', this)">REWE</button>
+            </div>
+
+            <div id="dealsGrid" class="deals-grid">
+                
+        <div class="deal-card" data-deal-id="aldi_rinderhack">
+            <div class="deal-img-wrap"><img src="images/aldi_hackfleisch.jpg" alt="Rinderhackfleisch XXL" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 5</div>
+                <div class="deal-title">Rinderhackfleisch XXL</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">7.99 €</span>
+                    <span class="deal-baseprice">9.99 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    800 g | XXL-Aktionspackung (Haltungsform 3)
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_rinderhack', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_schweinefilet">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">ALDI Nord</div></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 5</div>
+                <div class="deal-title">Frisches Schweinefilet</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">3.99 €</span>
+                    <span class="deal-baseprice">7.98 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    500 g | Aktion, Haltungsform 2
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_schweinefilet', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_chicken_box">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">ALDI Nord</div></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 5</div>
+                <div class="deal-title">BBQ Chicken-Box XXL</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">7.49 €</span>
+                    <span class="deal-baseprice">3.75 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    2000 g (2 kg) | 2-kg-XXL-Packung
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_chicken_box', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_kerrygold">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">ALDI Nord</div></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 1</div>
+                <div class="deal-title">Kerrygold Käse (Cheddar / Pizzakäse)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.39 €</span>
+                    <span class="deal-baseprice">9.27 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    150 g | -53% UVP 2.99 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_kerrygold', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_landmilch">
+            <div class="deal-img-wrap"><img src="images/aldi_milch.jpg" alt="Landliebe Haltbare Landmilch (3,5% / 1,5%)" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 1</div>
+                <div class="deal-title">Landliebe Haltbare Landmilch (3,5% / 1,5%)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.88 €</span>
+                    <span class="deal-baseprice">0.88 €/L</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 Liter | -39% UVP 1.45 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_landmilch', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_kartoffeln">
+            <div class="deal-img-wrap"><img src="images/aldi_kartoffeln.jpg" alt="Speisekartoffeln festkochend XXL" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 2</div>
+                <div class="deal-title">Speisekartoffeln festkochend XXL</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">3.33 €</span>
+                    <span class="deal-baseprice">0.67 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    5 kg | XXL 5-kg-Netz, Deutsches Erzeugnis
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_kartoffeln', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_bio_bananen">
+            <div class="deal-img-wrap"><img src="images/aldi_bananen.jpg" alt="Bio Bananen Fairtrade" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 1</div>
+                <div class="deal-title">Bio Bananen Fairtrade</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.49 €</span>
+                    <span class="deal-baseprice">1.49 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 kg | -25% Rabatt
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_bio_bananen', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_tafelaepfel">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">ALDI Nord</div></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 3</div>
+                <div class="deal-title">Rote Tafeläpfel (Kl. 1)</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">2.22 €</span>
+                    <span class="deal-baseprice">1.11 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    2 kg | Aktion, 2-kg-Beutel
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_tafelaepfel', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_wirsingkohl">
+            <div class="deal-img-wrap"><img src="images/aldi_wirsingkohl.jpg" alt="Wirsingkohl unverpackt" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 2</div>
+                <div class="deal-title">Wirsingkohl unverpackt</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.99 €</span>
+                    <span class="deal-baseprice">0.99 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 kg | -33% Rabatt
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_wirsingkohl', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="aldi_kiwi">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">ALDI Nord</div></div>
+            <div class="deal-content">
+                <div class="deal-store">ALDI Nord • S. 3</div>
+                <div class="deal-title">Zespri Kiwi grün</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.44 €</span>
+                    <span class="deal-baseprice">0.44 €/Stk.</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 Stück | Aktion bis zu -41%
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('aldi_kiwi', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="penny_barilla">
+            <div class="deal-img-wrap"><img src="images/penny_barilla.jpg" alt="Barilla Pasta (Fusilli / Penne Rigate)" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">PENNY • S. 1</div>
+                <div class="deal-title">Barilla Pasta (Fusilli / Penne Rigate)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.79 €</span>
+                    <span class="deal-baseprice">1.58 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    500 g | Mit PENNY App 0.79 € (ohne App 0.89 € / 1.78 €/kg, -55% bis -60%)
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('penny_barilla', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="penny_butter">
+            <div class="deal-img-wrap"><img src="images/penny_butter.jpg" alt="Milprima Deutsche Markenbutter (mildgesäuert/süßrahm)" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">PENNY • S. 2</div>
+                <div class="deal-title">Milprima Deutsche Markenbutter (mildgesäuert/süßrahm)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.15 €</span>
+                    <span class="deal-baseprice">4.60 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    250 g | Dauerhaft im Preis gesenkt
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('penny_butter', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="penny_haehnchenschenkel">
+            <div class="deal-img-wrap"><img src="images/penny_haehnchen.jpg" alt="Mühlenhof Frische Hähnchenschenkel XXL" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">PENNY • S. 1</div>
+                <div class="deal-title">Mühlenhof Frische Hähnchenschenkel XXL</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">6.49 €</span>
+                    <span class="deal-baseprice">3.25 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    2000 g (2 kg) | XXL-Vorteilspackung (Haltungsform 2)
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('penny_haehnchenschenkel', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="penny_zott_joghurt">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">PENNY</div></div>
+            <div class="deal-content">
+                <div class="deal-store">PENNY • S. 1</div>
+                <div class="deal-title">Zott Sahnejoghurt (versch. Sorten)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.39 €</span>
+                    <span class="deal-baseprice">2.79 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    140 g | Mit App 0.39 € (ohne App 0.44 €, -55% bis -60%)
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('penny_zott_joghurt', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="penny_cherrytomaten">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">PENNY</div></div>
+            <div class="deal-content">
+                <div class="deal-store">PENNY • S. 6</div>
+                <div class="deal-title">Bio-Cherry-Romatomaten</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.19 €</span>
+                    <span class="deal-baseprice">4.76 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    250 g | Bio-Aktion
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('penny_cherrytomaten', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="penny_dallmayr">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">PENNY</div></div>
+            <div class="deal-content">
+                <div class="deal-store">PENNY • S. 1</div>
+                <div class="deal-title">Dallmayr Kaffee prodomo gemahlen</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">6.49 €</span>
+                    <span class="deal-baseprice">12.98 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    500 g | -38% UVP 10.49 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('penny_dallmayr', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="penny_baguette_broetchen">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">PENNY</div></div>
+            <div class="deal-content">
+                <div class="deal-store">PENNY • S. 3</div>
+                <div class="deal-title">Bäcker-Krönung Baguette-Brötchen</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.59 €</span>
+                    <span class="deal-baseprice">1.97 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    300 g (4 bzw. 6 Stück) | Dauerhaft günstig
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('penny_baguette_broetchen', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="netto_almighurt">
+            <div class="deal-img-wrap"><img src="images/netto_almighurt.jpg" alt="Ehrmann Almighurt (versch. Sorten)" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">Netto Marken-Discount • S. 1</div>
+                <div class="deal-title">Ehrmann Almighurt (versch. Sorten)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.29 €</span>
+                    <span class="deal-baseprice">1.93 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    150 g | -67% UVP 0.89 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('netto_almighurt', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="netto_schweinenacken">
+            <div class="deal-img-wrap"><img src="images/netto_schweinenacken.jpg" alt="Schweine-Nacken ohne Knochen" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">Netto Marken-Discount • S. 1</div>
+                <div class="deal-title">Schweine-Nacken ohne Knochen</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">5.49 €</span>
+                    <span class="deal-baseprice">5.49 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 kg (ca. 2.4 kg Vakuum) | -37% UVP 8.79 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('netto_schweinenacken', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="netto_tomaten_xxl">
+            <div class="deal-img-wrap"><img src="images/netto_tomaten.jpg" alt="Mini-Pflaumentomaten XXL" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">Netto Marken-Discount • S. 4</div>
+                <div class="deal-title">Mini-Pflaumentomaten XXL</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">3.99 €</span>
+                    <span class="deal-baseprice">3.99 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1000 g (1 kg Schale) | XXL 1-kg-Schale, -20% UVP 4.99 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('netto_tomaten_xxl', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="netto_gurken">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">Netto Marken-Discount</div></div>
+            <div class="deal-content">
+                <div class="deal-store">Netto Marken-Discount • S. 1</div>
+                <div class="deal-title">Frische Salatgurken (Kl. 1)</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.88 €</span>
+                    <span class="deal-baseprice">0.88 €/Stk.</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 Stück | -26% UVP 1.19 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('netto_gurken', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="netto_gouda">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">Netto Marken-Discount</div></div>
+            <div class="deal-content">
+                <div class="deal-store">Netto Marken-Discount • S. 1</div>
+                <div class="deal-title">Gutes Land Gouda Jung Käsescheiben</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.99 €</span>
+                    <span class="deal-baseprice">4.98 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    400 g | Vorteilspackung 400g, -18%
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('netto_gouda', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="netto_kartoffel_zwiebel_kombi">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">Netto Marken-Discount</div></div>
+            <div class="deal-content">
+                <div class="deal-store">Netto Marken-Discount • S. 4</div>
+                <div class="deal-title">Speisekartoffeln (7.5 kg) + Speisezwiebeln (3 kg)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">7.00 €</span>
+                    <span class="deal-baseprice">0.67 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    10.5 kg (Kombipack) | Kombikauf (-26% ggü. Einzelkauf 9.48 €)
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('netto_kartoffel_zwiebel_kombi', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="netto_haribo">
+            <div class="deal-img-wrap"><img src="images/netto_haribo.jpg" alt="Haribo Fruchtgummi (versch. Sorten)" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">Netto Marken-Discount • S. 1</div>
+                <div class="deal-title">Haribo Fruchtgummi (versch. Sorten)</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.66 €</span>
+                    <span class="deal-baseprice">3.77 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    175 g | -44% UVP 1.19 €
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('netto_haribo', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="rewe_toffifee">
+            <div class="deal-img-wrap"><img src="images/rewe_toffifee.jpg" alt="Storck Toffifee" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">REWE • S. 1</div>
+                <div class="deal-title">Storck Toffifee</div>
+                <div><span class="rating-badge rating-schnaeppchen">SEHR GUTES SCHNÄPPCHEN</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.99 €</span>
+                    <span class="deal-baseprice">7.92 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    125 g (15 Stück) | Knaller-Angebot
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('rewe_toffifee', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="rewe_bonduelle_mais">
+            <div class="deal-img-wrap"><img src="images/rewe_bonduelle.jpg" alt="Bonduelle Goldmais" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">REWE • S. 1</div>
+                <div class="deal-title">Bonduelle Goldmais</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.11 €</span>
+                    <span class="deal-baseprice">3.89 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    285 g Abtropfgewicht (300g Dose) | Knaller-Angebot
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('rewe_bonduelle_mais', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="rewe_valensina_saft">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">REWE</div></div>
+            <div class="deal-content">
+                <div class="deal-store">REWE • S. 1</div>
+                <div class="deal-title">Valensina Saft (versch. Sorten)</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.69 €</span>
+                    <span class="deal-baseprice">1.69 €/L</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 Liter | Knaller (+0.20 € App-Bonus)
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('rewe_valensina_saft', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="rewe_spitzkohl">
+            <div class="deal-img-wrap"><img src="images/rewe_spitzkohl.jpg" alt="REWE Regional Spitzkohl" class="deal-img"></div>
+            <div class="deal-content">
+                <div class="deal-store">REWE • S. 5</div>
+                <div class="deal-title">REWE Regional Spitzkohl</div>
+                <div><span class="rating-badge rating-angebot">GUTES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">0.99 €</span>
+                    <span class="deal-baseprice">0.99 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 kg | Regional-Aktion
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('rewe_spitzkohl', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="rewe_kerrygold_cheddar">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">REWE</div></div>
+            <div class="deal-content">
+                <div class="deal-store">REWE • S. 1</div>
+                <div class="deal-title">Kerrygold Cheddar Käse Scheiben</div>
+                <div><span class="rating-badge rating-normal">NORMALER PREIS</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.59 €</span>
+                    <span class="deal-baseprice">10.60 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    150 g | Knaller (+0.10 € Bonus)
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('rewe_kerrygold_cheddar', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="rewe_cherrytomaten">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">REWE</div></div>
+            <div class="deal-content">
+                <div class="deal-store">REWE • S. 1</div>
+                <div class="deal-title">Mini Cherry Rispentomaten 'Delizioso'</div>
+                <div><span class="rating-badge rating-normal">KEIN BESONDERES ANGEBOT</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">1.79 €</span>
+                    <span class="deal-baseprice">8.95 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    200 g Schale | Knaller-Aktion
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('rewe_cherrytomaten', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+        <div class="deal-card" data-deal-id="rewe_haehnchenbrust">
+            <div class="deal-img-wrap"><div style="font-weight: bold; color: #94a3b8;">REWE</div></div>
+            <div class="deal-content">
+                <div class="deal-store">REWE • S. 1</div>
+                <div class="deal-title">Frisches Hähnchen-Brustfilet Teilstück</div>
+                <div><span class="rating-badge rating-normal">NORMALER PREIS</span></div>
+                <div class="price-badge-row">
+                    <span class="deal-price">11.99 €</span>
+                    <span class="deal-baseprice">11.99 €/kg</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                    1 kg | Knaller-Aktion
+                </div>
+                <button class="btn-add-list" onclick="toggleAddToList('rewe_haehnchenbrust', this)">
+                    + Auf Einkaufsliste
+                </button>
+            </div>
+        </div>
+        
+            </div>
+        </div>
+
+        <!-- TAB 2: EINKAUFSLISTE -->
+        <div id="tab-list" class="tab-content">
+            <div class="list-header">
+                <div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">GEMEINSAME EINKAUFSLISTE</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary);" id="listTotal">0,00 €</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="clearCheckedItems()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: white; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Erledigte löschen</button>
+                    <button onclick="clearAllList()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #fee2e2; background: #fef2f2; color: #dc2626; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Leeren</button>
+                </div>
+            </div>
+
+            <div id="listItemsContainer">
+                <!-- Dynamisch generierte Einkaufsliste nach Supermarkt -->
+            </div>
+
+            <div class="add-custom-form">
+                <input type="text" id="customItemInput" class="add-custom-input" placeholder="+ Eigenen Artikel notieren (z. B. Milch, Brot)...">
+                <button onclick="addCustomItem()" class="btn-add-custom">Hinzufügen</button>
+            </div>
+        </div>
+
+        <!-- TAB 3: PROSPEKTE BLÄTTERN -->
+        <div id="tab-flyer" class="tab-content">
+            <div class="viewer-controls">
+                <select id="storeSelector" class="viewer-select" onchange="changeBrochureStore(this.value)">
+                    <option value="aldi">ALDI Nord (44 Seiten)</option>
+                    <option value="penny">PENNY (48 Seiten)</option>
+                    <option value="netto">Netto Marken-Discount (75 Seiten)</option>
+                    <option value="rewe">REWE (28 Seiten)</option>
+                </select>
+                
+                <div class="viewer-nav-row">
+                    <button id="btnPrevPage" class="btn-nav-page" onclick="prevPage()">‹ Zurück</button>
+                    <span id="pageIndicator" style="font-weight: 700; font-size: 0.95rem;">Seite 1 / 44</span>
+                    <button id="btnNextPage" class="btn-nav-page" onclick="nextPage()">Weiter ›</button>
+                </div>
+            </div>
+
+            <div class="viewer-img-container">
+                <img id="viewerImage" src="brochures/aldi/p_1.jpg" alt="Prospektseite" class="viewer-page-img">
+            </div>
+            
+            <div style="text-align: center; margin-top: 12px;">
+                <a id="originalPdfLink" href="brochures/aldi/ALDI_Nord.pdf" target="_blank" style="color: var(--primary-light); font-weight: 600; font-size: 0.85rem; text-decoration: none;">📄 Original-PDF herunterladen</a>
+            </div>
+        </div>
+
+        <!-- TAB 4: ESSENSPLAN -->
+        <div id="tab-meals" class="tab-content">
+            <div class="meal-card">
+                <div class="meal-day">Montag</div>
+                <div class="meal-title">Großer Topf Familien-Bolognese mit Pasta</div>
+                <div class="meal-desc">
+                    <strong>Angebote:</strong> ALDI Rinderhackfleisch XXL 800g (7,99 €) + PENNY Barilla Pasta (0,79 €) + Netto Pflaumentomaten & Zwiebeln.<br>
+                    <em>Tipp:</em> Eine Portion direkt für Donnerstag oder die Tiefkühltruhe einfrieren!
+                </div>
+                <button class="btn-add-list" onclick="addMealIngredients('bolognese')">+ Zutaten auf Einkaufsliste setzen</button>
+            </div>
+
+            <div class="meal-card">
+                <div class="meal-day">Dienstag</div>
+                <div class="meal-title">Knusprige Ofen-Hähnchenschenkel mit Kartoffeln</div>
+                <div class="meal-desc">
+                    <strong>Angebote:</strong> PENNY Mühlenhof Hähnchenschenkel XXL 2kg (6,49 € = 3,25 €/kg) + ALDI Speisekartoffeln XXL (3,33 € für 5kg) + ALDI Möhren (1,11 €).
+                </div>
+                <button class="btn-add-list" onclick="addMealIngredients('chicken')">+ Zutaten auf Einkaufsliste setzen</button>
+            </div>
+
+            <div class="meal-card">
+                <div class="meal-day">Mittwoch</div>
+                <div class="meal-title">Cremige Tomaten-Penne mit überbackenem Gouda</div>
+                <div class="meal-desc">
+                    <strong>Angebote:</strong> PENNY Barilla Penne (0,79 €) + Netto Pflaumentomaten (1,00 € Anteil) + Netto Gutes Land Gouda Jung (1,99 €).
+                </div>
+                <button class="btn-add-list" onclick="addMealIngredients('pasta')">+ Zutaten auf Einkaufsliste setzen</button>
+            </div>
+
+            <div class="meal-card">
+                <div class="meal-day">Donnerstag</div>
+                <div class="meal-title">Wirsing-Kartoffel-Eintopf mit Hackbällchen</div>
+                <div class="meal-desc">
+                    <strong>Angebote:</strong> ALDI Wirsingkohl (0,99 €) + ALDI Speisekartoffeln + Reste vom ALDI Hackfleisch.
+                </div>
+                <button class="btn-add-list" onclick="addMealIngredients('wirsing')">+ Zutaten auf Einkaufsliste setzen</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Tab Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('deals', this)">
+            <span class="nav-icon">🔥</span>
+            <span>Angebote</span>
+        </button>
+        <button class="nav-item" style="position: relative;" onclick="switchTab('list', this)">
+            <span class="nav-icon">🛒</span>
+            <span>Einkaufsliste</span>
+            <span id="listBadge" class="nav-badge" style="display: none;">0</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('flyer', this)">
+            <span class="nav-icon">📖</span>
+            <span>Prospekte</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('meals', this)">
+            <span class="nav-icon">🍳</span>
+            <span>Essensplan</span>
+        </button>
+    </nav>
+
+    <script>
+        const DEALS = [{"id": "aldi_rinderhack", "produkt": "Rinderhackfleisch XXL", "marke": "Gut Bio / ALDI Frische", "haendler": "ALDI Nord", "preis": 7.99, "menge": "800 g", "menge_wert": 0.8, "menge_einheit": "kg", "grundpreis": 9.99, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "XXL-Aktionspackung (Haltungsform 3)", "seite": 5, "kategorie": "Fleisch & Geflügel", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Frisches reines Rinderhack unter 10 €/kg (Normalpreis Discounter liegt bei 11,50–13,00 €/kg). Perfekt zum Einfrieren und für Bolognese!", "bild": "aldi_hackfleisch.jpg"}, {"id": "aldi_schweinefilet", "produkt": "Frisches Schweinefilet", "marke": "ALDI Frische", "haendler": "ALDI Nord", "preis": 3.99, "menge": "500 g", "menge_wert": 0.5, "menge_einheit": "kg", "grundpreis": 7.98, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Aktion, Haltungsform 2", "seite": 5, "kategorie": "Fleisch & Geflügel", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Schweinefilet für unter 8 €/kg ist ein Spitzenpreis (Normalpreis meist 11–14 €/kg).", "bild": null}, {"id": "aldi_chicken_box", "produkt": "BBQ Chicken-Box XXL", "marke": "ALDI", "haendler": "ALDI Nord", "preis": 7.49, "menge": "2000 g (2 kg)", "menge_wert": 2.0, "menge_einheit": "kg", "grundpreis": 3.75, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "2-kg-XXL-Packung", "seite": 5, "kategorie": "Fleisch & Geflügel", "bewertung": "GUTES ANGEBOT", "begruendung": "Sehr günstiges Geflügel-Angebot für die ganze Familie mit 3,75 €/kg.", "bild": null}, {"id": "aldi_kerrygold", "produkt": "Kerrygold Käse (Cheddar / Pizzakäse)", "marke": "Kerrygold", "haendler": "ALDI Nord", "preis": 1.39, "menge": "150 g", "menge_wert": 0.15, "menge_einheit": "kg", "grundpreis": 9.27, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-53% UVP 2.99 €", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Mehr als halber Preis! Deutlich günstiger als bei REWE (dort 1,59 €).", "bild": null}, {"id": "aldi_landmilch", "produkt": "Landliebe Haltbare Landmilch (3,5% / 1,5%)", "marke": "Landliebe", "haendler": "ALDI Nord", "preis": 0.88, "menge": "1 Liter", "menge_wert": 1.0, "menge_einheit": "l", "grundpreis": 0.88, "grundpreis_einheit": "€/L", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-39% UVP 1.45 €", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Markenmilch günstiger als Discounter-Eigenmarken (normal 0,99–1,05 €).", "bild": "aldi_milch.jpg"}, {"id": "aldi_kartoffeln", "produkt": "Speisekartoffeln festkochend XXL", "marke": "Heimat auf dem Teller", "haendler": "ALDI Nord", "preis": 3.33, "menge": "5 kg", "menge_wert": 5.0, "menge_einheit": "kg", "grundpreis": 0.67, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "XXL 5-kg-Netz, Deutsches Erzeugnis", "seite": 2, "kategorie": "Obst & Gemüse", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "0,67 €/kg für deutsche Qualitätskartoffeln ist die ideale Beilage fürs Budget.", "bild": "aldi_kartoffeln.jpg"}, {"id": "aldi_bio_bananen", "produkt": "Bio Bananen Fairtrade", "marke": "Gut Bio", "haendler": "ALDI Nord", "preis": 1.49, "menge": "1 kg", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 1.49, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-25% Rabatt", "seite": 1, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Günstiger als konventionelle Markenbananen bei PENNY (Chiquita 1,99 €/kg).", "bild": "aldi_bananen.jpg"}, {"id": "aldi_tafelaepfel", "produkt": "Rote Tafeläpfel (Kl. 1)", "marke": "Deutsche Ernte", "haendler": "ALDI Nord", "preis": 2.22, "menge": "2 kg", "menge_wert": 2.0, "menge_einheit": "kg", "grundpreis": 1.11, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Aktion, 2-kg-Beutel", "seite": 3, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Sehr kinderfreundlicher Apfelsnack für 1,11 €/kg.", "bild": null}, {"id": "aldi_wirsingkohl", "produkt": "Wirsingkohl unverpackt", "marke": "Aus deutschem Anbau", "haendler": "ALDI Nord", "preis": 0.99, "menge": "1 kg", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 0.99, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-33% Rabatt", "seite": 2, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Gesundes Herbstgemüse unter 1 €/kg.", "bild": "aldi_wirsingkohl.jpg"}, {"id": "aldi_kiwi", "produkt": "Zespri Kiwi grün", "marke": "Zespri", "haendler": "ALDI Nord", "preis": 0.44, "menge": "1 Stück", "menge_wert": 1.0, "menge_einheit": "Stück", "grundpreis": 0.44, "grundpreis_einheit": "€/Stk.", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Aktion bis zu -41%", "seite": 3, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Markenkiwi für 0,44 € (Vergleich REWE: SunGold 0,59 €).", "bild": null}, {"id": "penny_barilla", "produkt": "Barilla Pasta (Fusilli / Penne Rigate)", "marke": "Barilla", "haendler": "PENNY", "preis": 0.79, "menge": "500 g", "menge_wert": 0.5, "menge_einheit": "kg", "grundpreis": 1.58, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Mit PENNY App 0.79 € (ohne App 0.89 € / 1.78 €/kg, -55% bis -60%)", "seite": 1, "kategorie": "Vorrat & Teigwaren", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Barilla zum Discounter-Eigenmarkenpreis! Absolutes Must-Have für Tomatensoße & Bolognese.", "bild": "penny_barilla.jpg"}, {"id": "penny_butter", "produkt": "Milprima Deutsche Markenbutter (mildgesäuert/süßrahm)", "marke": "Milprima", "haendler": "PENNY", "preis": 1.15, "menge": "250 g", "menge_wert": 0.25, "menge_einheit": "kg", "grundpreis": 4.6, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Dauerhaft im Preis gesenkt", "seite": 2, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Echte Butter für 1,15 € / 250g ist aktuell historischer Tiefpreis (oft 1,69–2,29 €).", "bild": "penny_butter.jpg"}, {"id": "penny_haehnchenschenkel", "produkt": "Mühlenhof Frische Hähnchenschenkel XXL", "marke": "Mühlenhof", "haendler": "PENNY", "preis": 6.49, "menge": "2000 g (2 kg)", "menge_wert": 2.0, "menge_einheit": "kg", "grundpreis": 3.25, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "XXL-Vorteilspackung (Haltungsform 2)", "seite": 1, "kategorie": "Fleisch & Geflügel", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "3,25 €/kg ist das günstigste frische Fleischangebot der gesamten Woche in Langelsheim.", "bild": "penny_haehnchen.jpg"}, {"id": "penny_zott_joghurt", "produkt": "Zott Sahnejoghurt (versch. Sorten)", "marke": "Zott", "haendler": "PENNY", "preis": 0.39, "menge": "140 g", "menge_wert": 0.14, "menge_einheit": "kg", "grundpreis": 2.79, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Mit App 0.39 € (ohne App 0.44 €, -55% bis -60%)", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "UVP 0.99 € – mit App um 60% reduziert. Beliebter Familiensnack.", "bild": null}, {"id": "penny_cherrytomaten", "produkt": "Bio-Cherry-Romatomaten", "marke": "PENNY Bio", "haendler": "PENNY", "preis": 1.19, "menge": "250 g", "menge_wert": 0.25, "menge_einheit": "kg", "grundpreis": 4.76, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Bio-Aktion", "seite": 6, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Bio-Tomaten für 4,76 €/kg (deutlich günstiger als REWE mit 8,95 €/kg).", "bild": null}, {"id": "penny_dallmayr", "produkt": "Dallmayr Kaffee prodomo gemahlen", "marke": "Dallmayr", "haendler": "PENNY", "preis": 6.49, "menge": "500 g", "menge_wert": 0.5, "menge_einheit": "kg", "grundpreis": 12.98, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-38% UVP 10.49 €", "seite": 1, "kategorie": "Vorrat & Teigwaren", "bewertung": "GUTES ANGEBOT", "begruendung": "Solider Rabatt auf bekannten Premiumkaffee für die Eltern.", "bild": null}, {"id": "penny_baguette_broetchen", "produkt": "Bäcker-Krönung Baguette-Brötchen", "marke": "Bäcker-Krönung", "haendler": "PENNY", "preis": 0.59, "menge": "300 g (4 bzw. 6 Stück)", "menge_wert": 0.3, "menge_einheit": "kg", "grundpreis": 1.97, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Dauerhaft günstig", "seite": 3, "kategorie": "Vorrat & Teigwaren", "bewertung": "GUTES ANGEBOT", "begruendung": "Günstige Brötchen zum Aufbacken fürs Familienfrühstück.", "bild": null}, {"id": "netto_almighurt", "produkt": "Ehrmann Almighurt (versch. Sorten)", "marke": "Ehrmann", "haendler": "Netto Marken-Discount", "preis": 0.29, "menge": "150 g", "menge_wert": 0.15, "menge_einheit": "kg", "grundpreis": 1.93, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-67% UVP 0.89 €", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Mit 0,29 € pro Becher der billigste Markenjoghurt des Monats!", "bild": "netto_almighurt.jpg"}, {"id": "netto_schweinenacken", "produkt": "Schweine-Nacken ohne Knochen", "marke": "Netto Fleischtheke", "haendler": "Netto Marken-Discount", "preis": 5.49, "menge": "1 kg (ca. 2.4 kg Vakuum)", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 5.49, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-37% UVP 8.79 €", "seite": 1, "kategorie": "Fleisch & Geflügel", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "5,49 €/kg für Braten oder Gulasch ist unschlagbar (REWE verlangt an der Theke 8,80 €/kg).", "bild": "netto_schweinenacken.jpg"}, {"id": "netto_tomaten_xxl", "produkt": "Mini-Pflaumentomaten XXL", "marke": "Netto Frische", "haendler": "Netto Marken-Discount", "preis": 3.99, "menge": "1000 g (1 kg Schale)", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 3.99, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "XXL 1-kg-Schale, -20% UVP 4.99 €", "seite": 4, "kategorie": "Obst & Gemüse", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Günstigster Kilopreis für süße Snacktomaten (REWE 8,95 €/kg, PENNY 4,76 €/kg).", "bild": "netto_tomaten.jpg"}, {"id": "netto_gurken", "produkt": "Frische Salatgurken (Kl. 1)", "marke": "Netto Frische", "haendler": "Netto Marken-Discount", "preis": 0.88, "menge": "1 Stück", "menge_wert": 1.0, "menge_einheit": "Stück", "grundpreis": 0.88, "grundpreis_einheit": "€/Stk.", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-26% UVP 1.19 €", "seite": 1, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Klassisches Gemüse für den Familiensalat unter 0,90 €.", "bild": null}, {"id": "netto_gouda", "produkt": "Gutes Land Gouda Jung Käsescheiben", "marke": "Gutes Land", "haendler": "Netto Marken-Discount", "preis": 1.99, "menge": "400 g", "menge_wert": 0.4, "menge_einheit": "kg", "grundpreis": 4.98, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Vorteilspackung 400g, -18%", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "GUTES ANGEBOT", "begruendung": "Grundpreis unter 5 €/kg für Schnittkäse ist sehr sparsam.", "bild": null}, {"id": "netto_kartoffel_zwiebel_kombi", "produkt": "Speisekartoffeln (7.5 kg) + Speisezwiebeln (3 kg)", "marke": "Netto Ernte", "haendler": "Netto Marken-Discount", "preis": 7.0, "menge": "10.5 kg (Kombipack)", "menge_wert": 10.5, "menge_einheit": "kg", "grundpreis": 0.67, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Kombikauf (-26% ggü. Einzelkauf 9.48 €)", "seite": 4, "kategorie": "Obst & Gemüse", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "10,5 kg Grundvorrat für genau 7 Euro (0,67 €/kg). Perfekte Basis für die Winterküche.", "bild": null}, {"id": "netto_haribo", "produkt": "Haribo Fruchtgummi (versch. Sorten)", "marke": "Haribo", "haendler": "Netto Marken-Discount", "preis": 0.66, "menge": "175 g", "menge_wert": 0.175, "menge_einheit": "kg", "grundpreis": 3.77, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "-44% UVP 1.19 €", "seite": 1, "kategorie": "Süßes & Snacks", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Haribo unter 0,70 € ist die beste Süßigkeiten-Aktion der Woche für das Kind.", "bild": "netto_haribo.jpg"}, {"id": "rewe_toffifee", "produkt": "Storck Toffifee", "marke": "Storck", "haendler": "REWE", "preis": 0.99, "menge": "125 g (15 Stück)", "menge_wert": 0.125, "menge_einheit": "kg", "grundpreis": 7.92, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Knaller-Angebot", "seite": 1, "kategorie": "Süßes & Snacks", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Toffifee unter 1 Euro ist der beste Preis im Vergleich zu Netto (dort 2,22 € für 250g = 8,88 €/kg).", "bild": "rewe_toffifee.jpg"}, {"id": "rewe_bonduelle_mais", "produkt": "Bonduelle Goldmais", "marke": "Bonduelle", "haendler": "REWE", "preis": 1.11, "menge": "285 g Abtropfgewicht (300g Dose)", "menge_wert": 0.285, "menge_einheit": "kg", "grundpreis": 3.89, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Knaller-Angebot", "seite": 1, "kategorie": "Vorrat & Teigwaren", "bewertung": "GUTES ANGEBOT", "begruendung": "Markenmais für Salate und Aufläufe um über 30% reduziert.", "bild": "rewe_bonduelle.jpg"}, {"id": "rewe_valensina_saft", "produkt": "Valensina Saft (versch. Sorten)", "marke": "Valensina", "haendler": "REWE", "preis": 1.69, "menge": "1 Liter", "menge_wert": 1.0, "menge_einheit": "l", "grundpreis": 1.69, "grundpreis_einheit": "€/L", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Knaller (+0.20 € App-Bonus)", "seite": 1, "kategorie": "Getränke", "bewertung": "GUTES ANGEBOT", "begruendung": "Beliebter Frühstückssaft im Angebot.", "bild": null}, {"id": "rewe_spitzkohl", "produkt": "REWE Regional Spitzkohl", "marke": "REWE Regional", "haendler": "REWE", "preis": 0.99, "menge": "1 kg", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 0.99, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Regional-Aktion", "seite": 5, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Regionales Gemüse aus Deutschland unter 1 €/kg.", "bild": "rewe_spitzkohl.jpg"}, {"id": "rewe_kerrygold_cheddar", "produkt": "Kerrygold Cheddar Käse Scheiben", "marke": "Kerrygold", "haendler": "REWE", "preis": 1.59, "menge": "150 g", "menge_wert": 0.15, "menge_einheit": "kg", "grundpreis": 10.6, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Knaller (+0.10 € Bonus)", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "NORMALER PREIS", "begruendung": "Zwar als 'Knaller' beworben, aber ALDI Nord bietet denselben Käse für 1,39 € (9,27 €/kg) an!", "bild": null}, {"id": "rewe_cherrytomaten", "produkt": "Mini Cherry Rispentomaten 'Delizioso'", "marke": "REWE Beste Wahl", "haendler": "REWE", "preis": 1.79, "menge": "200 g Schale", "menge_wert": 0.2, "menge_einheit": "kg", "grundpreis": 8.95, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Knaller-Aktion", "seite": 1, "kategorie": "Obst & Gemüse", "bewertung": "KEIN BESONDERES ANGEBOT", "begruendung": "Mit fast 9 €/kg viel zu teuer im Vergleich: Netto bietet 1 kg Pflaumentomaten für 3,99 €!", "bild": null}, {"id": "rewe_haehnchenbrust", "produkt": "Frisches Hähnchen-Brustfilet Teilstück", "marke": "Qualitätsmetzgerei", "haendler": "REWE", "preis": 11.99, "menge": "1 kg", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 11.99, "grundpreis_einheit": "€/kg", "zeitraum": "09.11.2026 – 14.11.2026", "bedingungen": "Knaller-Aktion", "seite": 1, "kategorie": "Fleisch & Geflügel", "bewertung": "NORMALER PREIS", "begruendung": "Gute Fleischthekenqualität, aber PENNY bietet 2 kg Hähnchenschenkel für 6,49 € (3,25 €/kg).", "bild": null}];
+        const BROCHURES = {"aldi": {"title": "ALDI Nord", "pdf_url": "brochures/aldi/ALDI_Nord.pdf", "pages": 44, "page_pattern": "brochures/aldi/p_{}.jpg"}, "penny": {"title": "PENNY", "pdf_url": "brochures/penny/PENNY.pdf", "pages": 48, "page_pattern": "brochures/penny/p_{}.jpg"}, "netto": {"title": "Netto Marken-Discount", "pdf_url": "brochures/netto/Netto_Marken_Discount.pdf", "pages": 75, "page_pattern": "brochures/netto/p_{}.jpg"}, "rewe": {"title": "REWE", "pdf_url": "brochures/rewe/REWE.pdf", "pages": 28, "page_pattern": "brochures/rewe/p_{}.jpg"}};
+
+        let activeStoreFilter = 'all';
+        let currentBrochureKey = 'aldi';
+        let currentBrochurePage = 1;
+        let shoppingList = JSON.parse(localStorage.getItem('familie_shopping_list') || '[]');
+
+        // Tab Switching
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            el.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (tabId === 'list') renderShoppingList();
+        }
+
+        // Render Deals
+        function renderDeals(filterDealsList) {
+            const container = document.getElementById('dealsGrid');
+            container.innerHTML = '';
+            
+            filterDealsList.forEach(deal => {
+                const isAdded = shoppingList.some(item => item.id === deal.id);
+                const badgeCls = deal.bewertung === 'SEHR GUTES SCHNÄPPCHEN' ? 'rating-schnaeppchen' : (deal.bewertung === 'GUTES ANGEBOT' ? 'rating-angebot' : 'rating-normal');
+                const imgHtml = deal.bild ? `<img src="images/${deal.bild}" alt="${deal.produkt}" class="deal-img">` : `<div style="font-weight: bold; color: #94a3b8;">${deal.haendler}</div>`;
+                
+                const card = document.createElement('div');
+                card.className = 'deal-card';
+                card.innerHTML = `
+                    <div class="deal-img-wrap">
+                        ${imgHtml}
+                    </div>
+                    <div class="deal-content">
+                        <div class="deal-store">${deal.haendler} • S. ${deal.seite}</div>
+                        <div class="deal-title">${deal.produkt}</div>
+                        <div><span class="rating-badge ${badgeCls}">${deal.bewertung}</span></div>
+                        
+                        <div class="price-badge-row">
+                            <span class="deal-price">${deal.preis.toFixed(2)} €</span>
+                            <span class="deal-baseprice">${deal.grundpreis.toFixed(2)} ${deal.grundpreis_einheit}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">
+                            ${deal.menge} | ${deal.bedingungen}
+                        </div>
+                        <button class="btn-add-list ${isAdded ? 'added' : ''}" onclick="toggleAddToList('${deal.id}', this)">
+                            ${isAdded ? '✓ Auf der Liste' : '+ Auf Einkaufsliste'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function setStoreFilter(store, btn) {
+            activeStoreFilter = store;
+            document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            filterDeals();
+        }
+
+        function filterDeals() {
+            const query = document.getElementById('dealSearch').value.toLowerCase();
+            const filtered = DEALS.filter(d => {
+                const matchStore = activeStoreFilter === 'all' || d.haendler === activeStoreFilter;
+                const matchQuery = d.produkt.toLowerCase().includes(query) || d.kategorie.toLowerCase().includes(query) || d.marke.toLowerCase().includes(query);
+                return matchStore && matchQuery;
+            });
+            renderDeals(filtered);
+        }
+
+        // Shopping List Logic
+        function saveShoppingList() {
+            localStorage.setItem('familie_shopping_list', JSON.stringify(shoppingList));
+            updateListBadge();
+        }
+
+        function updateListBadge() {
+            const badge = document.getElementById('listBadge');
+            const count = shoppingList.filter(i => !i.checked).length;
+            if (count > 0) {
+                badge.style.display = 'block';
+                badge.innerText = count;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function toggleAddToList(dealId, btn) {
+            const deal = DEALS.find(d => d.id === dealId);
+            if (!deal) return;
+            
+            const existingIdx = shoppingList.findIndex(i => i.id === dealId);
+            if (existingIdx >= 0) {
+                shoppingList.splice(existingIdx, 1);
+                if (btn) {
+                    btn.classList.remove('added');
+                    btn.innerText = '+ Auf Einkaufsliste';
+                }
+            } else {
+                shoppingList.push({
+                    id: deal.id,
+                    title: deal.produkt,
+                    store: deal.haendler,
+                    price: deal.preis,
+                    checked: false
+                });
+                if (btn) {
+                    btn.classList.add('added');
+                    btn.innerText = '✓ Auf der Liste';
+                }
+            }
+            saveShoppingList();
+        }
+
+        function renderShoppingList() {
+            const container = document.getElementById('listItemsContainer');
+            container.innerHTML = '';
+            
+            if (shoppingList.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #94a3b8; font-weight: 600;">Eure Einkaufsliste ist noch leer.<br>Tippe bei den Angeboten auf „+ Auf Einkaufsliste“!</div>';
+                document.getElementById('listTotal').innerText = '0,00 €';
+                return;
+            }
+
+            // Gruppiere nach Supermarkt
+            const grouped = {};
+            let total = 0;
+            shoppingList.forEach((item, idx) => {
+                if (!grouped[item.store]) grouped[item.store] = [];
+                grouped[item.store].push({ ...item, originalIdx: idx });
+                if (!item.checked) total += item.price;
+            });
+
+            document.getElementById('listTotal').innerText = total.toFixed(2) + ' €';
+
+            for (const [store, items] of Object.entries(grouped)) {
+                const groupEl = document.createElement('div');
+                groupEl.className = 'list-store-group';
+                
+                const storeTotal = items.filter(i => !i.checked).reduce((acc, i) => acc + i.price, 0);
+                groupEl.innerHTML = `
+                    <div class="list-store-title">
+                        <span>${store}</span>
+                        <span>${storeTotal.toFixed(2)} €</span>
+                    </div>
+                `;
+
+                items.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'list-item ' + (item.checked ? 'checked' : '');
+                    itemEl.innerHTML = `
+                        <div class="custom-checkbox" onclick="toggleCheckItem(${item.originalIdx})">
+                            ${item.checked ? '✓' : ''}
+                        </div>
+                        <div class="item-text" onclick="toggleCheckItem(${item.originalIdx})">
+                            ${item.title}
+                        </div>
+                        <div class="item-price">${item.price > 0 ? item.price.toFixed(2) + ' €' : ''}</div>
+                        <button class="btn-delete-item" onclick="deleteItem(${item.originalIdx})">✕</button>
+                    `;
+                    groupEl.appendChild(itemEl);
+                });
+
+                container.appendChild(groupEl);
+            }
+        }
+
+        function toggleCheckItem(idx) {
+            shoppingList[idx].checked = !shoppingList[idx].checked;
+            saveShoppingList();
+            renderShoppingList();
+        }
+
+        function deleteItem(idx) {
+            shoppingList.splice(idx, 1);
+            saveShoppingList();
+            renderShoppingList();
+            filterDeals();
+        }
+
+        function clearCheckedItems() {
+            shoppingList = shoppingList.filter(i => !i.checked);
+            saveShoppingList();
+            renderShoppingList();
+            filterDeals();
+        }
+
+        function clearAllList() {
+            if (confirm('Möchtest du die gesamte Einkaufsliste leeren?')) {
+                shoppingList = [];
+                saveShoppingList();
+                renderShoppingList();
+                filterDeals();
+            }
+        }
+
+        function addCustomItem() {
+            const input = document.getElementById('customItemInput');
+            const val = input.value.trim();
+            if (!val) return;
+            shoppingList.push({
+                id: 'custom_' + Date.now(),
+                title: val,
+                store: 'Sonstiges / Notizen',
+                price: 0.0,
+                checked: false
+            });
+            input.value = '';
+            saveShoppingList();
+            renderShoppingList();
+        }
+
+        // Meal plan ingredient adder
+        function addMealIngredients(mealKey) {
+            const mealMap = {
+                'bolognese': ['aldi_rinderhack', 'penny_barilla', 'netto_tomaten_xxl'],
+                'chicken': ['penny_haehnchenschenkel', 'aldi_kartoffeln', 'aldi_bio_bananen'],
+                'pasta': ['penny_barilla', 'netto_tomaten_xxl', 'netto_gouda'],
+                'wirsing': ['aldi_wirsingkohl', 'aldi_kartoffeln']
+            };
+            const ids = mealMap[mealKey] || [];
+            ids.forEach(id => {
+                if (!shoppingList.some(item => item.id === id)) {
+                    toggleAddToList(id, null);
+                }
+            });
+            alert('Die Zutaten für dieses Gericht wurden auf die Einkaufsliste gesetzt!');
+            renderDeals(DEALS);
+            updateListBadge();
+        }
+
+        // Brochure Viewer Logic
+        function changeBrochureStore(storeKey) {
+            currentBrochureKey = storeKey;
+            currentBrochurePage = 1;
+            updateViewer();
+        }
+
+        function updateViewer() {
+            const b = BROCHURES[currentBrochureKey];
+            if (!b) return;
+            const imgEl = document.getElementById('viewerImage');
+            const pageUrl = `brochures/${currentBrochureKey}/p_${currentBrochurePage}.jpg`;
+            imgEl.src = pageUrl;
+            
+            document.getElementById('pageIndicator').innerText = `Seite ${currentBrochurePage} / ${b.pages}`;
+            document.getElementById('btnPrevPage').disabled = (currentBrochurePage <= 1);
+            document.getElementById('btnNextPage').disabled = (currentBrochurePage >= b.pages);
+            
+            const pdfLink = document.getElementById('originalPdfLink');
+            pdfLink.href = b.pdf_url;
+        }
+
+        function prevPage() {
+            if (currentBrochurePage > 1) {
+                currentBrochurePage--;
+                updateViewer();
+            }
+        }
+
+        function nextPage() {
+            const b = BROCHURES[currentBrochureKey];
+            if (currentBrochurePage < b.pages) {
+                currentBrochurePage++;
+                updateViewer();
+            }
+        }
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDeals(DEALS);
+            updateListBadge();
+            updateViewer();
+        });
+    </script>
+</body>
+</html>

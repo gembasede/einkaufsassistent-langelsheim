@@ -24,3 +24,12 @@
 ## Phase 4: Automatisierung
 - [x] Konfiguration der Automatisierung `Wöchentlicher Einkaufsassistent (Langelsheim)`
 - [x] Verknüpfung im Automations-Dashboard zur manuellen Aktivierung
+
+## Phase 5: Mobile Web-App (PWA) & FamilienZentrale Integration
+- [x] Mobile Web-App mit 4 Tabs (Deals, Checkliste, Blätterkatalog, Essensplan) in `web/index.html`
+- [x] Vorgerenderte Produktkarten (SSR-Style) für schnelles Laden
+- [x] Interaktive Einkaufsliste mit Checkboxen, Summenrechner und `localStorage`-Speicherung
+- [x] Mobiler Prospekt-Blätterkatalog (195 optimierte Web-Seiten für ALDI, PENNY, Netto, REWE)
+- [x] PWA-Manifest (`manifest.json`) und Vercel-Konfiguration (`vercel.json`)
+- [x] Nahtlose Verlinkung als Hero-Banner in `FamilienZentrale` (`src/app/prospekte/page.tsx`)
+- [x] Vollständiger TypeScript-Typcheck fehlerfrei bestanden

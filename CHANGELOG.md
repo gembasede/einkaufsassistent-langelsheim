@@ -12,4 +12,5 @@ Alle relevanten Änderungen an diesem Projekt werden in dieser Datei dokumentier
 - Phase 1 erfolgreich abgeschlossen: Alle 4 Prospekte für KW 46 (09.11.2026 - 14.11.2026) für Langelsheim heruntergeladen und verifiziert (`ALDI_Nord.pdf`, `PENNY.pdf`, `Netto_Marken_Discount.pdf`, `REWE.pdf`).
 - Phase 2 erfolgreich abgeschlossen: Skript `scripts/extract_deals.py` zur Validierung von 31 Angeboten und mathematischer Grundpreisprüfung in `angebote.json`.
 - Phase 3 erfolgreich abgeschlossen: Skript `scripts/extract_images.py` zum hochauflösenden Zuschneiden von 15 Produktbildern und `scripts/generate_report.py` zur Erstellung des visuellen Wochenberichts als `wochenbericht.html` und `wochenbericht.pdf`.
-- Phase 4 vorbereitet: Einrichtung der wöchentlichen Antigravity-Automatisierung für Sonntags um 08:00 Uhr.
+- Phase 4 abgeschlossen: Einrichtung der wöchentlichen Antigravity-Automatisierung für Sonntags um 08:00 Uhr (`sidecar.json`).
+- Phase 5 abgeschlossen: Mobile Web-App (PWA) in `web/` mit interaktiver Einkaufsliste, 195 gerenderten Blätterseiten für alle 4 Märkte, Essensplan-Übernahme, Vercel-Konfiguration und eleganter Einbindung als Hero-Banner in der bestehenden `FamilienZentrale` (`src/app/prospekte/page.tsx`).
