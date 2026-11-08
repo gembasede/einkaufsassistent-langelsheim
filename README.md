@@ -35,11 +35,11 @@ start web/index.html
 python -m http.server 8080 --directory web
 ```
 
-### Vercel Deployment
-Der Ordner `web/` enthält eine fertige `vercel.json`. Deployment via:
-```bash
-npx vercel web --prod
-```
+### Vercel Deployment & GitHub Repository
+- **GitHub Repository:** `https://github.com/gembasede/einkaufsassistent-langelsheim`
+- **Vercel Standalone Projekt:** `einkaufsassistent-langelsheim`
+- **Routing:** Automatische Weiterleitung via `vercel.json` im Hauptverzeichnis direkt auf `web/index.html`.
+- Deployment via Git: Ein `git push` zu GitHub triggert automatisch den Vercel-Livebuild.
 
 ---
 

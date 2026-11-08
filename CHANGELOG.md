@@ -15,3 +15,4 @@ Alle relevanten Änderungen an diesem Projekt werden in dieser Datei dokumentier
 - Phase 4 abgeschlossen: Einrichtung der wöchentlichen Antigravity-Automatisierung für Sonntags um 08:00 Uhr (`sidecar.json`).
 - Phase 5 abgeschlossen: Mobile Web-App (PWA) in `web/` mit interaktiver Einkaufsliste, 195 gerenderten Blätterseiten für alle 4 Märkte, Essensplan-Übernahme, Vercel-Konfiguration und eleganter Einbindung als Hero-Banner in der bestehenden `FamilienZentrale` (`src/app/prospekte/page.tsx`).
 - Live-Deployment & Integration: Bereitstellung der modernen Angebots-Radar-App unter `public/angebots-radar/` in der Next.js-FamilienZentrale, Vercel-Team-Autorisierung eingerichtet und Routing direkt auf `/angebots-radar/` umgestellt.
+- Eigenständiges GitHub-Repository angelegt: `https://github.com/gembasede/einkaufsassistent-langelsheim` mit vollständiger Konfiguration für 100% autonomes, unabhängiges Hosting auf Vercel.
