@@ -1,0 +1,57 @@
+{
+  "kw": 46,
+  "year": 2026,
+  "validity": "09.11.2026 – 14.11.2026",
+  "region": "38685 Langelsheim, Niedersachsen",
+  "timestamp": "2026-11-08 11:18:42",
+  "downloads": [
+    {
+      "store": "ALDI Nord",
+      "branch": "Lange Straße 62, 38685 Langelsheim",
+      "pdf_name": "ALDI_Nord.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_46\\ALDI_Nord.pdf",
+      "file_size_mb": 6.16,
+      "pages": 44,
+      "validity": "09.11.2026 – 14.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/aldi-nord/prospekt-09-11-2026/"
+    },
+    {
+      "store": "PENNY",
+      "branch": "Lange Straße 64, 38685 Langelsheim",
+      "pdf_name": "PENNY.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_46\\PENNY.pdf",
+      "file_size_mb": 6.81,
+      "pages": 48,
+      "validity": "09.11.2026 – 14.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/penny/prospekt-09-11-2026/"
+    },
+    {
+      "store": "Netto Marken-Discount",
+      "branch": "Ringstraße 34a, 38685 Langelsheim",
+      "pdf_name": "Netto_Marken_Discount.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_46\\Netto_Marken_Discount.pdf",
+      "file_size_mb": 10.55,
+      "pages": 75,
+      "validity": "09.11.2026 – 14.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/netto/prospekt-09-11-2026/"
+    },
+    {
+      "store": "REWE",
+      "branch": "Lange Str. 60, 38685 Langelsheim",
+      "pdf_name": "REWE.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_46\\REWE.pdf",
+      "file_size_mb": 3.83,
+      "pages": 28,
+      "validity": "09.11.2026 – 14.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/rewe/prospekt-09-11-2026/"
+    }
+  ]
+}
