@@ -4,6 +4,13 @@ Alle relevanten Änderungen an diesem Projekt werden in dieser Datei dokumentier
 
 ## [Unreleased]
 ### Added
+- Wöchentlicher Sonntags-Einkaufscheck für Langelsheim erfolgreich und vollständig automatisiert durchlaufen:
+  - Download & Verifikation aller 4 Händler-Originalprospekte (ALDI Nord, PENNY, Netto Marken-Discount, REWE).
+  - Validierung von 31 Angeboten inklusive mathematischer Grundpreisprüfung.
+  - Automatischer Zuschnitt von 15 hochauflösenden Produktbildern (200 DPI).
+  - Neuer visueller Wochenbericht als interaktives HTML und druckfertiges PDF (`wochenbericht.html`, `wochenbericht.pdf`).
+  - Mobile PWA Web-App (`web/index.html`) und Blätterkatalog-Rendern aller Seiten synchronisiert.
+- `.gitignore` um temporäre Download-Verzeichnisse (`_temp_pages/`) ergänzt.
 - Initiales Projekt-Setup im Verzeichnis `einkaufsassistent`.
 - Grundstruktur mit `scripts/` und `Prospekte/`.
 - Dokumentation (`README.md`, `CHANGELOG.md`, `TODO.md`).
