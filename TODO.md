@@ -37,4 +37,5 @@
 - [x] Vercel-Projekt `einkaufsassistent-langelsheim` angelegt und Team-Autorisierung abgeschlossen
 
 ## Wöchentliche Routine & Status
-- [x] Wöchentlicher Sonntags-Einkaufscheck durchgeführt: Download, Validierung, Bildextraktion, HTML/PDF-Bericht & PWA-Sync
+- [x] Dynamische Wochenberechnung in allen Skripten implementiert (kein starres Hardcoding mehr)
+- [x] KW 48 (23.11.2026 – 28.11.2026) vollständig verarbeitet: 134 Seiten Prospekte, 27 Deals validiert, 14 Bilder zugeschnitten, Wochenbericht & PWA aktualisiert

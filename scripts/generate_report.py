@@ -528,7 +528,7 @@ def generate_html_report(deals_data: dict, status_data: dict, report_dir: str) -
     <h2>🔍 Qualitätskontrolle & Transparenz</h2>
     <div class="plan-box">
         <ul style="padding-left: 20px; color: #334155; font-size: 0.95rem; line-height: 1.8;">
-            <li>✓ <strong>Originalprospekte physisch geprüft:</strong> Alle 4 Prospekte (KW 46, 09.11.–14.11.2026) liegen lokal als vollwertige PDF-Dateien vor.</li>
+            <li>✓ <strong>Originalprospekte physisch geprüft:</strong> Alle 4 Prospekte (KW {kw}, {deals_data.get('validity', '')}) liegen lokal als vollwertige PDF-Dateien vor.</li>
             <li>✓ <strong>Region:</strong> Alle Angebote entsprechen den Filialen in 38685 Langelsheim (Lange Straße & Ringstraße).</li>
             <li>✓ <strong>Grundpreise mathematisch verifiziert:</strong> Alle €/kg- und €/L-Preise wurden per Skript gegen die Packungsgrößen gegengerechnet.</li>
             <li>✓ <strong>Keine KI-Bilder:</strong> Alle Produktbilder sind echte Bildausschnitte aus den Originalseiten der Händler.</li>
@@ -537,7 +537,7 @@ def generate_html_report(deals_data: dict, status_data: dict, report_dir: str) -
     </div>
 
     <footer style="text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.85rem;">
-        Erstellt durch den autonomen Antigravity Einkaufsassistenten • Langelsheim, Niedersachsen • Stand: KW 46 (09.11.2026)
+        Erstellt durch den autonomen Antigravity Einkaufsassistenten • Langelsheim, Niedersachsen • Stand: KW {kw} ({year})
     </footer>
 
 </div>
@@ -584,11 +584,28 @@ def render_pdf_report(html_path: str, report_dir: str):
 
 
 def run_report_generation():
+    import datetime
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    report_dir = os.path.join(project_root, "Prospekte", "2026", "KW_46")
+    today = datetime.date.today()
+    if today.weekday() >= 5:
+        target_monday = today + datetime.timedelta(days=(7 - today.weekday()))
+    else:
+        target_monday = today - datetime.timedelta(days=today.weekday())
+    kw = target_monday.isocalendar()[1]
+    year = target_monday.year
+    report_dir = os.path.join(project_root, "Prospekte", str(year), f"KW_{kw}")
+    
+    if not os.path.exists(report_dir):
+        # Fallback auf neuesten Ordner
+        prospekte_root = os.path.join(project_root, "Prospekte", str(year))
+        if os.path.exists(prospekte_root):
+            kws = sorted([d for d in os.listdir(prospekte_root) if d.startswith("KW_")])
+            if kws:
+                report_dir = os.path.join(prospekte_root, kws[-1])
     
     print("=" * 70)
-    print("Generiere visuellen Wochenbericht für KW 46 (Langelsheim)...")
+    print(f"Generiere visuellen Wochenbericht für {os.path.basename(report_dir)} ({year}, Langelsheim)...")
+    print(f"Berichts-Verzeichnis: {report_dir}")
     print("=" * 70)
     
     deals_data, status_data = load_data(report_dir)

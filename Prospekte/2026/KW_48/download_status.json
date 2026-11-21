@@ -1,0 +1,58 @@
+{
+  "kw": 48,
+  "year": 2026,
+  "validity": "23.11.2026 – 28.11.2026",
+  "target_monday": "2026-11-23",
+  "region": "38685 Langelsheim, Niedersachsen",
+  "timestamp": "2026-11-21 16:03:39",
+  "downloads": [
+    {
+      "store": "ALDI Nord",
+      "branch": "Lange Straße 62, 38685 Langelsheim",
+      "pdf_name": "ALDI_Nord.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_48\\ALDI_Nord.pdf",
+      "file_size_mb": 7.01,
+      "pages": 49,
+      "validity": "23.11.2026 – 28.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/aldi-nord/prospekt-23-11-2026/"
+    },
+    {
+      "store": "PENNY",
+      "branch": "Lange Straße 64, 38685 Langelsheim",
+      "pdf_name": "PENNY.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_48\\PENNY.pdf",
+      "file_size_mb": 2.53,
+      "pages": 17,
+      "validity": "23.11.2026 – 28.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/penny/prospekt-23-11-2026/"
+    },
+    {
+      "store": "Netto Marken-Discount",
+      "branch": "Ringstraße 34a, 38685 Langelsheim",
+      "pdf_name": "Netto_Marken_Discount.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_48\\Netto_Marken_Discount.pdf",
+      "file_size_mb": 5.26,
+      "pages": 36,
+      "validity": "23.11.2026 – 28.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/netto/prospekt-23-11-2026/"
+    },
+    {
+      "store": "REWE",
+      "branch": "Lange Str. 60, 38685 Langelsheim",
+      "pdf_name": "REWE.pdf",
+      "file_path": "C:\\Users\\gorni\\.gemini\\antigravity\\scratch\\einkaufsassistent\\Prospekte\\2026\\KW_48\\REWE.pdf",
+      "file_size_mb": 5.12,
+      "pages": 32,
+      "validity": "23.11.2026 – 28.11.2026",
+      "status": "HERUNTERGELADEN UND VERIFIZIERT",
+      "source": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+      "source_url": "https://onlineprospekt.com/prospekte/rewe/prospekt-23-11-2026/"
+    }
+  ]
+}

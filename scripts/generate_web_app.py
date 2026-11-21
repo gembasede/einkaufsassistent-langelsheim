@@ -1019,12 +1019,29 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
 
 
 def run_generate_web():
+    import datetime
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    report_dir = os.path.join(project_root, "Prospekte", "2026", "KW_46")
+    today = datetime.date.today()
+    if today.weekday() >= 5:
+        target_monday = today + datetime.timedelta(days=(7 - today.weekday()))
+    else:
+        target_monday = today - datetime.timedelta(days=today.weekday())
+    kw = target_monday.isocalendar()[1]
+    year = target_monday.year
+    report_dir = os.path.join(project_root, "Prospekte", str(year), f"KW_{kw}")
+    
+    if not os.path.exists(report_dir):
+        prospekte_root = os.path.join(project_root, "Prospekte", str(year))
+        if os.path.exists(prospekte_root):
+            kws = sorted([d for d in os.listdir(prospekte_root) if d.startswith("KW_")])
+            if kws:
+                report_dir = os.path.join(prospekte_root, kws[-1])
+                
     web_dir = os.path.join(project_root, "web")
     
     print("=" * 70)
-    print("Erstelle mobile PWA Web-App für den Einkaufsassistenten...")
+    print(f"Erstelle mobile PWA Web-App für {os.path.basename(report_dir)} ({year})...")
+    print(f"Datenquelle:    {report_dir}")
     print(f"Zielverzeichnis: {web_dir}")
     print("=" * 70)
     

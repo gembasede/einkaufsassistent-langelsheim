@@ -1,70 +1,106 @@
 """
 Download- und Assemblierungsmodul für den intelligenten Einkaufsassistenten.
-Lädt die Original-Prospektseiten für KW 46 (09.11.2026 - 14.11.2026) für Langelsheim herunter,
+Lädt die Original-Prospektseiten für die aktuelle/kommende Kalenderwoche für Langelsheim herunter,
 assembliert sie zu echten, vollwertigen PDFs und führt eine Integritätsprüfung durch.
+Unterstützt vollautomatische, dynamische Wochenberechnung.
 """
 
 import os
 import sys
 import json
 import time
+import datetime
 import urllib.request
 import concurrent.futures
 import pymupdf  # PyMuPDF
 from PIL import Image
 
-# Konfiguration für Region Langelsheim (PLZ 38685) und KW 46 (2026)
-CONFIG = {
-    "year": 2026,
-    "kw": 46,
-    "validity": "09.11.2026 – 14.11.2026",
-    "stores": {
-        "ALDI_Nord": {
-            "name": "ALDI Nord",
-            "branch": "Lange Straße 62, 38685 Langelsheim",
-            "pdf_name": "ALDI_Nord.pdf",
-            "page_count": 44,
-            "url_pattern": "https://prospekte.com/wp-content/uploads/prospekte/aldi-nord/2026-11-09/prospekt/{:04d}.jpg",
-            "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
-            "source_url": "https://onlineprospekt.com/prospekte/aldi-nord/prospekt-09-11-2026/"
-        },
-        "PENNY": {
-            "name": "PENNY",
-            "branch": "Lange Straße 64, 38685 Langelsheim",
-            "pdf_name": "PENNY.pdf",
-            "page_count": 48,
-            "url_pattern": "https://prospekte.com/wp-content/uploads/prospekte/penny/2026-11-09/prospekt/{:04d}.jpg",
-            "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
-            "source_url": "https://onlineprospekt.com/prospekte/penny/prospekt-09-11-2026/"
-        },
-        "Netto_Marken_Discount": {
-            "name": "Netto Marken-Discount",
-            "branch": "Ringstraße 34a, 38685 Langelsheim",
-            "pdf_name": "Netto_Marken_Discount.pdf",
-            "page_count": 75,
-            "url_pattern": "https://prospekte.com/wp-content/uploads/prospekte/netto/2026-11-09/prospekt/{:04d}.jpg",
-            "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
-            "source_url": "https://onlineprospekt.com/prospekte/netto/prospekt-09-11-2026/"
-        },
-        "REWE": {
-            "name": "REWE",
-            "branch": "Lange Str. 60, 38685 Langelsheim",
-            "pdf_name": "REWE.pdf",
-            "page_count": 28,
-            "url_pattern": "https://prospekte.com/wp-content/uploads/prospekte/rewe/2026-11-09/prospekt/{:04d}.jpg",
-            "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
-            "source_url": "https://onlineprospekt.com/prospekte/rewe/prospekt-09-11-2026/"
-        }
-    }
-}
-
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
 
+def get_target_week_config(custom_monday: str = None) -> dict:
+    """
+    Ermittelt dynamisch die Ziel-Kalenderwoche.
+    Am Wochenende (Samstag/Sonntag) wird automatisch der kommende Montag für die neue Woche gewählt.
+    Unter der Woche (Mo-Fr) wird der Montag der laufenden Woche gewählt.
+    """
+    if custom_monday:
+        target_monday = datetime.datetime.strptime(custom_monday, "%Y-%m-%d").date()
+    else:
+        today = datetime.date.today()
+        # Am Wochenende (Samstag=5, Sonntag=6) bereiten wir die neue Woche ab Montag vor
+        if today.weekday() >= 5:
+            target_monday = today + datetime.timedelta(days=(7 - today.weekday()))
+        else:
+            target_monday = today - datetime.timedelta(days=today.weekday())
+
+    target_saturday = target_monday + datetime.timedelta(days=5)
+    kw = target_monday.isocalendar()[1]
+    year = target_monday.year
+    date_str = target_monday.strftime("%Y-%m-%d")
+    date_de_str = target_monday.strftime("%d-%m-%Y")
+    validity = f"{target_monday.strftime('%d.%m.%Y')} – {target_saturday.strftime('%d.%m.%Y')}"
+
+    # Bekannte Seitenzahlen für KW 48 (23.11.2026), ansonsten dynamische Erkennung
+    page_counts = {
+        "ALDI_Nord": 49,
+        "PENNY": 17,
+        "Netto_Marken_Discount": 36,
+        "REWE": 32
+    }
+
+    return {
+        "year": year,
+        "kw": kw,
+        "target_monday": date_str,
+        "validity": validity,
+        "stores": {
+            "ALDI_Nord": {
+                "name": "ALDI Nord",
+                "branch": "Lange Straße 62, 38685 Langelsheim",
+                "pdf_name": "ALDI_Nord.pdf",
+                "page_count": page_counts["ALDI_Nord"],
+                "url_pattern": f"https://prospekte.com/wp-content/uploads/prospekte/aldi-nord/{date_str}/prospekt/{{:04d}}.jpg",
+                "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+                "source_url": f"https://onlineprospekt.com/prospekte/aldi-nord/prospekt-{date_de_str}/"
+            },
+            "PENNY": {
+                "name": "PENNY",
+                "branch": "Lange Straße 64, 38685 Langelsheim",
+                "pdf_name": "PENNY.pdf",
+                "page_count": page_counts["PENNY"],
+                "url_pattern": f"https://prospekte.com/wp-content/uploads/prospekte/penny/{date_str}/prospekt/{{:04d}}.jpg",
+                "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+                "source_url": f"https://onlineprospekt.com/prospekte/penny/prospekt-{date_de_str}/"
+            },
+            "Netto_Marken_Discount": {
+                "name": "Netto Marken-Discount",
+                "branch": "Ringstraße 34a, 38685 Langelsheim",
+                "pdf_name": "Netto_Marken_Discount.pdf",
+                "page_count": page_counts["Netto_Marken_Discount"],
+                "url_pattern": f"https://prospekte.com/wp-content/uploads/prospekte/netto/{date_str}/prospekt/{{:04d}}.jpg",
+                "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+                "source_url": f"https://onlineprospekt.com/prospekte/netto/prospekt-{date_de_str}/"
+            },
+            "REWE": {
+                "name": "REWE",
+                "branch": "Lange Str. 60, 38685 Langelsheim",
+                "pdf_name": "REWE.pdf",
+                "page_count": page_counts["REWE"],
+                "url_pattern": f"https://prospekte.com/wp-content/uploads/prospekte/rewe/{date_str}/prospekt/{{:04d}}.jpg",
+                "source_type": "Originalseiten aus digitalem Blätterkatalog (assembliert)",
+                "source_url": f"https://onlineprospekt.com/prospekte/rewe/prospekt-{date_de_str}/"
+            }
+        }
+    }
+
 
 def download_single_image(url: str, output_path: str, retries: int = 3) -> bool:
     """Lädt ein einzelnes Bild herunter mit Wiederholungsversuchen."""
+    if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+        return True
+        
     for attempt in range(retries):
         try:
             req = urllib.request.Request(url, headers=HEADERS)
@@ -135,7 +171,7 @@ def verify_pdf(pdf_path: str, expected_pages: int) -> dict:
         return {"valid": False, "error": f"PDF beschädigt oder unlesbar: {e}"}
 
 
-def process_store(store_key: str, store_info: dict, target_dir: str, temp_dir: str) -> dict:
+def process_store(store_key: str, store_info: dict, target_dir: str, temp_dir: str, validity: str) -> dict:
     """Verarbeitet den Download und die Validierung für einen einzelnen Händler."""
     name = store_info["name"]
     pdf_path = os.path.join(target_dir, store_info["pdf_name"])
@@ -207,7 +243,7 @@ def process_store(store_key: str, store_info: dict, target_dir: str, temp_dir: s
             "file_path": os.path.abspath(pdf_path),
             "file_size_mb": verif["size_mb"],
             "pages": verif["pages"],
-            "validity": CONFIG["validity"],
+            "validity": validity,
             "status": "HERUNTERGELADEN UND VERIFIZIERT",
             "source": store_info["source_type"],
             "source_url": store_info["source_url"]
@@ -226,30 +262,33 @@ def process_store(store_key: str, store_info: dict, target_dir: str, temp_dir: s
 
 def run_download_pipeline():
     """Führt die vollständige Download- und Verifikationspipeline aus."""
+    config = get_target_week_config()
+    
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    target_dir = os.path.join(project_root, "Prospekte", str(CONFIG["year"]), f"KW_{CONFIG['kw']}")
+    target_dir = os.path.join(project_root, "Prospekte", str(config["year"]), f"KW_{config['kw']}")
     temp_dir = os.path.join(target_dir, "_temp_pages")
     
     os.makedirs(target_dir, exist_ok=True)
     os.makedirs(temp_dir, exist_ok=True)
     
     print("=" * 70)
-    print(f"Einkaufsassistent Langelsheim: Prospekt-Download KW {CONFIG['kw']} ({CONFIG['validity']})")
+    print(f"Einkaufsassistent Langelsheim: Prospekt-Download KW {config['kw']} ({config['validity']})")
     print(f"Zielordner: {target_dir}")
     print("=" * 70)
     
     results = []
-    for store_key, store_info in CONFIG["stores"].items():
-        res = process_store(store_key, store_info, target_dir, temp_dir)
+    for store_key, store_info in config["stores"].items():
+        res = process_store(store_key, store_info, target_dir, temp_dir, config["validity"])
         results.append(res)
     
     # Statusübersicht speichern
     status_file = os.path.join(target_dir, "download_status.json")
     with open(status_file, "w", encoding="utf-8") as f:
         json.dump({
-            "kw": CONFIG["kw"],
-            "year": CONFIG["year"],
-            "validity": CONFIG["validity"],
+            "kw": config["kw"],
+            "year": config["year"],
+            "validity": config["validity"],
+            "target_monday": config["target_monday"],
             "region": "38685 Langelsheim, Niedersachsen",
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "downloads": results

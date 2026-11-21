@@ -1,136 +1,148 @@
 import pymupdf
 import os
-from PIL import Image
+import datetime
 
-pdf_dir = r"C:\Users\gorni\.gemini\antigravity\scratch\einkaufsassistent\Prospekte\2026\KW_46"
+today = datetime.date.today()
+if today.weekday() >= 5:
+    target_monday = today + datetime.timedelta(days=(7 - today.weekday()))
+else:
+    target_monday = today - datetime.timedelta(days=today.weekday())
+kw = target_monday.isocalendar()[1]
+year = target_monday.year
+
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pdf_dir = os.path.join(project_root, "Prospekte", str(year), f"KW_{kw}")
 img_out_dir = os.path.join(pdf_dir, "images")
 os.makedirs(img_out_dir, exist_ok=True)
 
 crops = [
+    # ALDI NORD (Page 1)
     {
-        "id": "aldi_hackfleisch",
-        "pdf": "ALDI_Nord.pdf",
-        "page": 5,
-        # Normalized bbox [x0, y0, x1, y1] (0.0 to 1.0)
-        "bbox": [0.08, 0.06, 0.62, 0.31],
-        "name": "Rinderhackfleisch XXL 800g (ALDI)"
-    },
-    {
-        "id": "aldi_milch",
+        "id": "aldi_clementinen",
         "pdf": "ALDI_Nord.pdf",
         "page": 1,
-        "bbox": [0.36, 0.40, 0.54, 0.56],
-        "name": "Landliebe Landmilch 1L (ALDI)"
+        "bbox": [0.05, 0.25, 0.33, 0.42],
+        "name": "Clementinen 1kg (ALDI)"
     },
     {
-        "id": "aldi_bananen",
+        "id": "aldi_minutensteaks",
         "pdf": "ALDI_Nord.pdf",
         "page": 1,
-        "bbox": [0.06, 0.27, 0.33, 0.42],
-        "name": "Bio Bananen Fairtrade (ALDI)"
+        "bbox": [0.05, 0.42, 0.33, 0.59],
+        "name": "Minutensteaks 400g (ALDI)"
     },
     {
-        "id": "penny_barilla",
+        "id": "aldi_baerenmarke_milch",
+        "pdf": "ALDI_Nord.pdf",
+        "page": 1,
+        "bbox": [0.36, 0.22, 0.65, 0.39],
+        "name": "Bärenmarke Milch 1L (ALDI)"
+    },
+    {
+        "id": "aldi_rougette",
+        "pdf": "ALDI_Nord.pdf",
+        "page": 1,
+        "bbox": [0.75, 0.22, 0.95, 0.39],
+        "name": "Rougette Ofenkäse (ALDI)"
+    },
+    {
+        "id": "aldi_prinzenrolle",
+        "pdf": "ALDI_Nord.pdf",
+        "page": 1,
+        "bbox": [0.65, 0.40, 0.95, 0.58],
+        "name": "Prinzenrolle 400g (ALDI)"
+    },
+    
+    # PENNY (Page 1)
+    {
+        "id": "penny_avocado",
         "pdf": "PENNY.pdf",
         "page": 1,
-        "bbox": [0.04, 0.66, 0.33, 0.94],
-        "name": "Barilla Pasta 500g (PENNY)"
+        "bbox": [0.57, 0.45, 0.98, 0.63],
+        "name": "Avocado Hass (PENNY)"
     },
     {
-        "id": "penny_haehnchen",
+        "id": "penny_bauer_joghurt",
         "pdf": "PENNY.pdf",
         "page": 1,
-        "bbox": [0.35, 0.38, 0.94, 0.60],
-        "name": "Mühlenhof Frische Hähnchenschenkel XXL (PENNY)"
+        "bbox": [0.03, 0.64, 0.33, 0.95],
+        "name": "Der Grosse Bauer Joghurt (PENNY)"
     },
     {
-        "id": "penny_butter",
+        "id": "penny_haribo",
         "pdf": "PENNY.pdf",
-        "page": 2,
-        "bbox": [0.06, 0.50, 0.45, 0.67],
-        "name": "Milprima Deutsche Markenbutter (PENNY)"
+        "page": 1,
+        "bbox": [0.35, 0.64, 0.64, 0.95],
+        "name": "Haribo Fruchtgummi (PENNY)"
     },
+
+    # NETTO (Page 1)
     {
-        "id": "netto_almighurt",
+        "id": "netto_hackfleisch",
         "pdf": "Netto_Marken_Discount.pdf",
         "page": 1,
-        "bbox": [0.36, 0.10, 0.62, 0.48],
-        "name": "Ehrmann Almighurt (Netto)"
+        "bbox": [0.02, 0.16, 0.34, 0.36],
+        "name": "Hackfleisch gemischt 500g (Netto)"
     },
     {
-        "id": "netto_schweinenacken",
+        "id": "netto_mueller_ecke",
         "pdf": "Netto_Marken_Discount.pdf",
         "page": 1,
-        "bbox": [0.02, 0.18, 0.32, 0.33],
-        "name": "Schweinenacken (Netto)"
+        "bbox": [0.02, 0.36, 0.34, 0.55],
+        "name": "Müller Joghurt mit der Ecke (Netto)"
     },
     {
-        "id": "netto_tomaten",
+        "id": "netto_fol_epi",
         "pdf": "Netto_Marken_Discount.pdf",
-        "page": 4,
-        "bbox": [0.08, 0.28, 0.64, 0.48],
-        "name": "Mini-Pflaumentomaten XXL 1kg (Netto)"
+        "page": 1,
+        "bbox": [0.02, 0.56, 0.34, 0.72],
+        "name": "Fol Epi Käsescheiben (Netto)"
     },
+
+    # REWE (Page 1)
     {
-        "id": "rewe_toffifee",
+        "id": "rewe_grapefruit",
         "pdf": "REWE.pdf",
         "page": 1,
-        "bbox": [0.35, 0.75, 0.64, 0.96],
-        "name": "Storck Toffifee (REWE)"
+        "bbox": [0.34, 0.60, 0.65, 0.76],
+        "name": "Grapefruit rot (REWE)"
     },
     {
-        "id": "rewe_bonduelle",
+        "id": "rewe_milram",
         "pdf": "REWE.pdf",
         "page": 1,
-        "bbox": [0.66, 0.75, 0.96, 0.96],
-        "name": "Bonduelle Goldmais (REWE)"
+        "bbox": [0.01, 0.57, 0.33, 0.76],
+        "name": "Milram Frühlingsquark (REWE)"
     },
     {
-        "id": "aldi_kartoffeln",
-        "pdf": "ALDI_Nord.pdf",
-        "page": 2,
-        "bbox": [0.60, 0.70, 0.98, 0.94],
-        "name": "Speisekartoffeln XXL 5kg (ALDI)"
-    },
-    {
-        "id": "aldi_wirsingkohl",
-        "pdf": "ALDI_Nord.pdf",
-        "page": 2,
-        "bbox": [0.03, 0.36, 0.33, 0.64],
-        "name": "Wirsingkohl unverpackt (ALDI)"
-    },
-    {
-        "id": "netto_haribo",
-        "pdf": "Netto_Marken_Discount.pdf",
-        "page": 1,
-        "bbox": [0.36, 0.78, 0.64, 0.96],
-        "name": "Haribo Fruchtgummi (Netto)"
-    },
-    {
-        "id": "rewe_spitzkohl",
+        "id": "rewe_kinder",
         "pdf": "REWE.pdf",
-        "page": 5,
-        "bbox": [0.68, 0.54, 0.96, 0.74],
-        "name": "REWE Regional Spitzkohl (REWE)"
+        "page": 1,
+        "bbox": [0.67, 0.76, 0.98, 0.95],
+        "name": "Kinder Bueno / Country (REWE)"
     }
 ]
 
+print(f"Schneide {len(crops)} Produktbilder für KW {kw} ({year}) zu...")
+
 for c in crops:
     pdf_path = os.path.join(pdf_dir, c["pdf"])
+    if not os.path.exists(pdf_path):
+        print(f"PDF nicht gefunden: {pdf_path}")
+        continue
     doc = pymupdf.open(pdf_path)
     page = doc[c["page"] - 1]
     
-    # Get page width & height in points
     rect = page.rect
     w, h = rect.width, rect.height
     
-    # Calculate crop rect in points
     x0, y0, x1, y1 = c["bbox"]
     crop_rect = pymupdf.Rect(x0 * w, y0 * h, x1 * w, y1 * h)
     
-    # Render with high DPI (200 dpi for sharp product view)
     pix = page.get_pixmap(clip=crop_rect, dpi=200)
     out_file = os.path.join(img_out_dir, f"{c['id']}.jpg")
     pix.save(out_file)
     doc.close()
     print(f"Cropped {c['name']} -> {out_file} ({pix.width}x{pix.height})")
+
+print(f"\nAlle Produktbilder erfolgreich zugeschnitten in:\n{img_out_dir}")

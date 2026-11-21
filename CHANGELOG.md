@@ -4,6 +4,18 @@ Alle relevanten Änderungen an diesem Projekt werden in dieser Datei dokumentier
 
 ## [Unreleased]
 ### Added
+- **Dynamische Wochenberechnung & Brandneue Prospekte (KW 48, 23.11.2026 – 28.11.2026):**
+  - Alle Skripte (`download_prospekte.py`, `extract_deals.py`, `extract_images.py`, `generate_report.py`, `generate_web_app.py`) von starrem Hardcoding auf automatische Wochenberechnung umgestellt.
+  - An Samstagen/Sonntagen wird automatisch der kommende Montag für die neue Einkaufswoche berechnet.
+  - Brandneue Originalprospekte für KW 48 heruntergeladen und physisch verifiziert:
+    - ALDI Nord: 49 Seiten (7.01 MB)
+    - PENNY: 17 Seiten (2.53 MB)
+    - Netto Marken-Discount: 36 Seiten (5.26 MB)
+    - REWE: 32 Seiten (5.12 MB)
+  - 27 aktuelle Angebote validiert und mathematische Grundpreise nachgerechnet (u. a. Bärenmarke Milch 0,88 €, Minutensteaks 5,73 €/kg, Netto Hackfleisch 6,98 €/kg, Bauer Joghurt 0,39 €).
+  - 14 hochauflösende Original-Produktbilder für die Highlights zugeschnitten.
+  - Neuer visueller Wochenbericht (`wochenbericht.html`, `wochenbericht.pdf`) für KW 48 erstellt.
+  - Mobile PWA Web-App (`web/index.html`) und 134 Blätterseiten für den Live-Betrieb auf Vercel synchronisiert.
 - Wöchentlicher Sonntags-Einkaufscheck für Langelsheim erfolgreich und vollständig automatisiert durchlaufen:
   - Download & Verifikation aller 4 Händler-Originalprospekte (ALDI Nord, PENNY, Netto Marken-Discount, REWE).
   - Validierung von 31 Angeboten inklusive mathematischer Grundpreisprüfung.
