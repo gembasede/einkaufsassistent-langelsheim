@@ -39,3 +39,5 @@
 ## Wöchentliche Routine & Status
 - [x] Dynamische Wochenberechnung in allen Skripten implementiert (kein starres Hardcoding mehr)
 - [x] KW 48 (23.11.2026 – 28.11.2026) vollständig verarbeitet: 134 Seiten Prospekte, 27 Deals validiert, 14 Bilder zugeschnitten, Wochenbericht & PWA aktualisiert
+- [x] Prospekt-Blätterkatalog erweitert: Schwebender `+`-Knopf mit Eingabefenster (Artikel, vorausgewählter Markt, optionaler Preis) & automatisches Merken der Seite pro Markt
+- [ ] Essensplan-Tab künftig dynamisch aus den aktuellen Wochenangeboten generieren

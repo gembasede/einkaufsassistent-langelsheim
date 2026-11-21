@@ -4,6 +4,12 @@ Alle relevanten Änderungen an diesem Projekt werden in dieser Datei dokumentier
 
 ## [Unreleased]
 ### Added
+- **Schnell-Eingabe direkt im Prospekt-Blätterkatalog (Floating `+`-Button & Bottom Sheet):**
+  - Über jeder Prospektseite schwebt unten rechts ein grüner `+`-Knopf, der ein kleines Eingabefenster von unten über den Prospekt schiebt, ohne den Tab zu wechseln.
+  - Felder für freien Artikelnamen, vorausgewählten Markt (passend zum gerade offenen Prospekt, frei änderbar) und optionalen Preis (rechnet direkt ins 100-€-Budget mit ein).
+  - Nach dem Tippen auf „+ Hinzufügen“ bleibt das Fenster offen, leert Artikel & Preis für den nächsten Eintrag und zeigt kurz eine Bestätigung an.
+  - **Prospekt-Leseposition merken:** Die App speichert die zuletzt gelesene Seite pro Markt dauerhaft im Browser (`localStorage`) und startet bei einer neuen Kalenderwoche automatisch wieder bei Seite 1.
+  - Dynamische Kopfzeile (`KW` & Gültigkeitszeitraum) und echte Seitenzahlen in der Markt-Auswahl (kein Hardcoding mehr).
 - **Dynamische Wochenberechnung & Brandneue Prospekte (KW 48, 23.11.2026 – 28.11.2026):**
   - Alle Skripte (`download_prospekte.py`, `extract_deals.py`, `extract_images.py`, `generate_report.py`, `generate_web_app.py`) von starrem Hardcoding auf automatische Wochenberechnung umgestellt.
   - An Samstagen/Sonntagen wird automatisch der kommende Montag für die neue Einkaufswoche berechnet.

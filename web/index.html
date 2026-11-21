@@ -418,6 +418,104 @@
             cursor: not-allowed;
         }
         
+        /* Schwebender "+"-Knopf im Prospekt-Tab */
+        .fab-add {
+            position: fixed;
+            right: 18px;
+            bottom: 78px; /* über der unteren Navigation */
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: none;
+            background: var(--success);
+            color: white;
+            font-size: 2rem;
+            line-height: 1;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 60;
+            display: none; /* nur im Prospekt-Tab sichtbar */
+        }
+        .fab-add.visible { display: block; }
+
+        /* Eingabefenster (Bottom Sheet) */
+        .sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.35);
+            z-index: 90;
+            display: none;
+        }
+        .sheet-backdrop.open { display: block; }
+        .sheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            border-radius: 18px 18px 0 0;
+            padding: 16px 16px 22px 16px;
+            z-index: 100;
+            box-shadow: 0 -6px 20px rgba(0,0,0,0.2);
+            transform: translateY(110%);
+            transition: transform 0.22s ease-out;
+        }
+        .sheet.open { transform: translateY(0); }
+        .sheet-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .sheet-title { font-weight: 800; font-size: 1.05rem; }
+        .sheet-close {
+            border: none;
+            background: #f1f5f9;
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .sheet-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin: 8px 0 4px 0;
+        }
+        .sheet-input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+        .sheet-row { display: flex; gap: 10px; }
+        .sheet-row > div { flex: 1; }
+        .sheet-actions { display: flex; gap: 10px; margin-top: 14px; }
+        .sheet-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .sheet-btn-primary { background: var(--success); color: white; }
+        .sheet-btn-secondary { background: #f1f5f9; color: var(--text-dark); }
+        .sheet-feedback {
+            min-height: 20px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--success);
+            text-align: center;
+        }
+        .sheet-feedback.error { color: #dc2626; }
+
         /* Meal Plan Tab */
         .meal-card {
             background: white;
@@ -451,9 +549,9 @@
     <div class="app-bar">
         <div class="app-title">
             🛒 Angebotsradar
-            <span class="app-badge">Langelsheim • KW 46</span>
+            <span class="app-badge">Langelsheim • KW 48</span>
         </div>
-        <div style="font-size: 0.8rem; opacity: 0.9;">09.11. – 14.11.</div>
+        <div style="font-size: 0.8rem; opacity: 0.9;">23.11.2026 – 28.11.2026</div>
     </div>
 
     <div class="container">
@@ -1015,15 +1113,15 @@
         <div id="tab-flyer" class="tab-content">
             <div class="viewer-controls">
                 <select id="storeSelector" class="viewer-select" onchange="changeBrochureStore(this.value)">
-                    <option value="aldi">ALDI Nord (44 Seiten)</option>
-                    <option value="penny">PENNY (48 Seiten)</option>
-                    <option value="netto">Netto Marken-Discount (75 Seiten)</option>
-                    <option value="rewe">REWE (28 Seiten)</option>
+                    <option value="aldi">ALDI Nord (49 Seiten)</option>
+                    <option value="penny">PENNY (17 Seiten)</option>
+                    <option value="netto">Netto Marken-Discount (36 Seiten)</option>
+                    <option value="rewe">REWE (32 Seiten)</option>
                 </select>
                 
                 <div class="viewer-nav-row">
                     <button id="btnPrevPage" class="btn-nav-page" onclick="prevPage()">‹ Zurück</button>
-                    <span id="pageIndicator" style="font-weight: 700; font-size: 0.95rem;">Seite 1 / 44</span>
+                    <span id="pageIndicator" style="font-weight: 700; font-size: 0.95rem;">Seite 1 / 49</span>
                     <button id="btnNextPage" class="btn-nav-page" onclick="nextPage()">Weiter ›</button>
                 </div>
             </div>
@@ -1079,6 +1177,45 @@
 
     </div>
 
+    <!-- Schwebender "+"-Knopf im Prospekt-Tab -->
+    <button id="fabAddBtn" class="fab-add" onclick="openQuickAddSheet()" aria-label="Artikel zur Einkaufsliste hinzufügen" title="Artikel auf Einkaufsliste">+</button>
+
+    <!-- Eingabefenster (Bottom Sheet) über dem Prospekt -->
+    <div id="quickAddBackdrop" class="sheet-backdrop" onclick="closeQuickAddSheet()"></div>
+    <div id="quickAddSheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
+        <div class="sheet-head">
+            <span id="quickAddTitle" class="sheet-title">🛒 Auf die Einkaufsliste</span>
+            <button type="button" class="sheet-close" onclick="closeQuickAddSheet()" aria-label="Schließen">✕</button>
+        </div>
+
+        <label for="quickItemName" class="sheet-label">Artikel</label>
+        <input type="text" id="quickItemName" class="sheet-input" placeholder="z. B. Kaffee, Milch, Windeln..." onkeydown="if (event.key === 'Enter') { event.preventDefault(); submitQuickAdd(); }">
+
+        <div class="sheet-row">
+            <div>
+                <label for="quickItemStore" class="sheet-label">Markt</label>
+                <select id="quickItemStore" class="sheet-input">
+                    <option value="ALDI Nord">ALDI Nord</option>
+                    <option value="PENNY">PENNY</option>
+                    <option value="Netto Marken-Discount">Netto Marken-Discount</option>
+                    <option value="REWE">REWE</option>
+                    <option value="Sonstiges / Notizen">Sonstiges / Notizen</option>
+                </select>
+            </div>
+            <div>
+                <label for="quickItemPrice" class="sheet-label">Preis (€, optional)</label>
+                <input type="text" id="quickItemPrice" class="sheet-input" inputmode="decimal" placeholder="z. B. 1,99" onkeydown="if (event.key === 'Enter') { event.preventDefault(); submitQuickAdd(); }">
+            </div>
+        </div>
+
+        <div id="quickAddFeedback" class="sheet-feedback" aria-live="polite"></div>
+
+        <div class="sheet-actions">
+            <button type="button" class="sheet-btn sheet-btn-secondary" onclick="closeQuickAddSheet()">Fertig</button>
+            <button type="button" class="sheet-btn sheet-btn-primary" onclick="submitQuickAdd()">+ Hinzufügen</button>
+        </div>
+    </div>
+
     <!-- Bottom Tab Navigation -->
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('deals', this)">
@@ -1103,11 +1240,50 @@
     <script>
         const DEALS = [{"id": "aldi_minutensteaks", "produkt": "Frische Minutensteaks aus dem Schweinerücken", "marke": "ALDI Frische / Deutsches Qualitätsfleisch", "haendler": "ALDI Nord", "preis": 2.29, "menge": "400 g", "menge_wert": 0.4, "menge_einheit": "kg", "grundpreis": 5.73, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-23% UVP 2.99 €, Haltungsform 2 (aus deutschem Schweinerücken)", "seite": 1, "kategorie": "Fleisch & Geflügel", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Mageres Schweinefleisch für 5,73 €/kg ist der absolute Fleisch-Preishit der Woche für die Familienküche.", "bild": "aldi_minutensteaks.jpg"}, {"id": "aldi_baerenmarke_milch", "produkt": "Bärenmarke Haltbare Milch (1,5% oder 3,5% Fett)", "marke": "Bärenmarke", "haendler": "ALDI Nord", "preis": 0.88, "menge": "1 Liter", "menge_wert": 1.0, "menge_einheit": "l", "grundpreis": 0.88, "grundpreis_einheit": "€/L", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-40% UVP 1.49 €", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Premium-Markenmilch für 0,88 € ist günstiger als die billigsten Discounter-Eigenmarken (normal 0,99 €).", "bild": "aldi_baerenmarke_milch.jpg"}, {"id": "aldi_clementinen", "produkt": "Süße Clementinen (Klasse 1)", "marke": "Spanische Ernte", "haendler": "ALDI Nord", "preis": 1.29, "menge": "1 kg", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 1.29, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-13% UVP 1.49 €, 1-kg-Netz", "seite": 1, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Wichtige Vitamine für den Winter: Frische kernarme Clementinen für 1,29 €/kg.", "bild": "aldi_clementinen.jpg"}, {"id": "aldi_prinzenrolle", "produkt": "De Beukelaer Prinzenrolle (Schoko oder Vanille)", "marke": "De Beukelaer", "haendler": "ALDI Nord", "preis": 1.39, "menge": "400 g", "menge_wert": 0.4, "menge_einheit": "kg", "grundpreis": 3.48, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-46% UVP 2.59 €, 400-g-Rolle", "seite": 1, "kategorie": "Süßes & Snacks", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Fast 50% Rabatt auf den beliebten Doppelkeks-Klassiker fürs Kind.", "bild": "aldi_prinzenrolle.jpg"}, {"id": "aldi_rougette_ofenkaese", "produkt": "Rougette Ofenkäse (versch. Sorten)", "marke": "Rougette", "haendler": "ALDI Nord", "preis": 3.79, "menge": "320 g", "menge_wert": 0.32, "menge_einheit": "kg", "grundpreis": 11.84, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-36% UVP 5.99 €", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "GUTES ANGEBOT", "begruendung": "UVP knapp 6 Euro – bei ALDI für 3,79 € ideal für ein schnelles warmes Abendessen mit Baguette.", "bild": "aldi_rougette.jpg"}, {"id": "aldi_mars_eisriegel", "produkt": "Mars / Snickers Ice Cream Riegel", "marke": "Mars Ice Cream", "haendler": "ALDI Nord", "preis": 1.99, "menge": "252 ml (6er Pack)", "menge_wert": 0.252, "menge_einheit": "l", "grundpreis": 7.9, "grundpreis_einheit": "€/L", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-46% UVP 3.69 €", "seite": 1, "kategorie": "Süßes & Snacks", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Original Markeneisriegel zum Discounterpreis.", "bild": null}, {"id": "aldi_ueltje_erdnuesse", "produkt": "ültje Erdnüsse XXL geröstet & gesalzen", "marke": "ültje", "haendler": "ALDI Nord", "preis": 2.79, "menge": "450 g", "menge_wert": 0.45, "menge_einheit": "kg", "grundpreis": 6.2, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-40% UVP 4.69 €, XXL 450-g-Beutel", "seite": 1, "kategorie": "Vorrat & Teigwaren", "bewertung": "GUTES ANGEBOT", "begruendung": "Günstiger Knabberspaß für die Eltern auf der Couch.", "bild": null}, {"id": "aldi_finish_caps", "produkt": "Finish Spülmaschinen-Caps Ultimate Plus XXL", "marke": "Finish", "haendler": "ALDI Nord", "preis": 9.99, "menge": "82 Stück", "menge_wert": 82.0, "menge_einheit": "Stück", "grundpreis": 0.12, "grundpreis_einheit": "€/Stk.", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-33% UVP 14.99 €, Sparpackung 82 Anwendungen", "seite": 1, "kategorie": "Haushalt", "bewertung": "GUTES ANGEBOT", "begruendung": "Günstiger Spültab-Vorrat für fast 3 Monate (12 Cent pro Spülgang).", "bild": null}, {"id": "penny_bauer_joghurt", "produkt": "Der Große Bauer Fruchtjoghurt (versch. Sorten)", "marke": "Bauer", "haendler": "PENNY", "preis": 0.39, "menge": "250 g", "menge_wert": 0.25, "menge_einheit": "kg", "grundpreis": 1.56, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-60% UVP 0.99 € mit PENNY App (ohne App 0.49 € = 1.96 €/kg)", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Großer 250g Markenbecher für 39 Cent – der billigste Fruchtjoghurt der Woche!", "bild": "penny_bauer_joghurt.jpg"}, {"id": "penny_haribo", "produkt": "HARIBO Fruchtgummi (Pico-Balla, Phantasia etc.)", "marke": "HARIBO", "haendler": "PENNY", "preis": 0.69, "menge": "205 g", "menge_wert": 0.205, "menge_einheit": "kg", "grundpreis": 3.37, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-42% UVP 1.19 € mit App (ohne App 0.79 € = 3.85 €/kg)", "seite": 1, "kategorie": "Süßes & Snacks", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Haribo unter 0,70 € pro Packung mit App.", "bild": "penny_haribo.jpg"}, {"id": "penny_avocado", "produkt": "Avocado Hass vorgereift (Klasse 1)", "marke": "PENNY Frische", "haendler": "PENNY", "preis": 0.69, "menge": "1 Stück", "menge_wert": 1.0, "menge_einheit": "Stück", "grundpreis": 0.69, "grundpreis_einheit": "€/Stk.", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "Aktion, verzehrreif", "seite": 1, "kategorie": "Obst & Gemüse", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Vorgereifte Hass-Avocado für 69 Cent ist Spitzenklasse (normal 1,29–1,49 €).", "bild": "penny_avocado.jpg"}, {"id": "penny_gruenlaender", "produkt": "Grünländer Käsescheiben (mild & nussig / würzig)", "marke": "Grünländer", "haendler": "PENNY", "preis": 1.69, "menge": "156 g", "menge_wert": 0.156, "menge_einheit": "kg", "grundpreis": 10.83, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-43% UVP 2.99 € mit App (ohne App 1.79 €)", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "GUTES ANGEBOT", "begruendung": "Ohne Gentechnik, beliebter Familien-Schnittkäse fürs Abendbrot.", "bild": null}, {"id": "penny_milka_weihnachtsmann", "produkt": "Milka Alpenmilch Weihnachtsmann", "marke": "Milka", "haendler": "PENNY", "preis": 0.99, "menge": "45 g", "menge_wert": 0.045, "menge_einheit": "kg", "grundpreis": 22.0, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-47% UVP 1.89 €", "seite": 1, "kategorie": "Süßes & Snacks", "bewertung": "GUTES ANGEBOT", "begruendung": "Pünktlich zum Start der Adventszeit unter 1 Euro.", "bild": null}, {"id": "penny_lavazza_kaffee", "produkt": "Lavazza Espresso Crema e Aroma Ganze Bohnen", "marke": "Lavazza", "haendler": "PENNY", "preis": 12.99, "menge": "1000 g (1 kg)", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 12.99, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-40% UVP 21.99 € mit App (ohne App 13.99 €)", "seite": 1, "kategorie": "Vorrat & Teigwaren", "bewertung": "GUTES ANGEBOT", "begruendung": "Günstiger Kilopreis für Marken-Kaffeebohnen.", "bild": null}, {"id": "netto_hackfleisch", "produkt": "Frisches Hackfleisch gemischt (50% Rind, 50% Schwein)", "marke": "Gut Ponholz", "haendler": "Netto Marken-Discount", "preis": 3.49, "menge": "500 g", "menge_wert": 0.5, "menge_einheit": "kg", "grundpreis": 6.98, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-22% UVP 4.49 €, aus Selbstbedienung", "seite": 1, "kategorie": "Fleisch & Geflügel", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "6,98 €/kg ist die günstigste Hackfleisch-Aktion der Region! Ideal für Bolognese und Frikadellen.", "bild": "netto_hackfleisch.jpg"}, {"id": "netto_mueller_ecke", "produkt": "Müller Joghurt mit der Ecke (versch. Sorten)", "marke": "Müller", "haendler": "Netto Marken-Discount", "preis": 0.29, "menge": "150 g", "menge_wert": 0.15, "menge_einheit": "kg", "grundpreis": 1.93, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-67% UVP 0.89 € mit Netto App (ohne App 0.33 € = 2.20 €/kg)", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Mit 29 Cent Rekord-Tiefpreis für den Kultjoghurt.", "bild": "netto_mueller_ecke.jpg"}, {"id": "netto_fol_epi", "produkt": "Fol Epi Käsescheiben (Classic / Caractère)", "marke": "Fol Epi", "haendler": "Netto Marken-Discount", "preis": 1.49, "menge": "150 g", "menge_wert": 0.15, "menge_einheit": "kg", "grundpreis": 9.93, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-44% UVP 2.69 €", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "Französischer Markenkäse unter 1,50 € pro Packung.", "bild": "netto_fol_epi.jpg"}, {"id": "netto_clementinen_xxl", "produkt": "Clementinen XXL Holzkiste", "marke": "Netto Frische", "haendler": "Netto Marken-Discount", "preis": 3.49, "menge": "2.3 kg", "menge_wert": 2.3, "menge_einheit": "kg", "grundpreis": 1.52, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-30% UVP 4.99 €, 2.3-kg-Kiste", "seite": 1, "kategorie": "Obst & Gemüse", "bewertung": "GUTES ANGEBOT", "begruendung": "Riesige 2,3-kg-Kiste für 3,49 € reicht locker die ganze Woche für die Familie.", "bild": null}, {"id": "netto_kaefer_kaffee", "produkt": "Käfer Caffè Crema Lungo Ganze Bohnen", "marke": "Käfer", "haendler": "Netto Marken-Discount", "preis": 9.99, "menge": "1000 g (1 kg)", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 9.99, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-33% UVP 14.99 €, 5 € Sparen", "seite": 1, "kategorie": "Vorrat & Teigwaren", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "1 kg Qualitätsbohnen unter 10 Euro ist selten zu finden.", "bild": null}, {"id": "netto_booster_energy", "produkt": "Booster Energy Drink (6er Pack)", "marke": "Booster", "haendler": "Netto Marken-Discount", "preis": 2.99, "menge": "1.98 Liter (6x0.33L)", "menge_wert": 1.98, "menge_einheit": "l", "grundpreis": 1.51, "grundpreis_einheit": "€/L", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-44% UVP 5.34 €, 6 Dosen für 2.99 € zzgl. Pfand", "seite": 1, "kategorie": "Getränke", "bewertung": "GUTES ANGEBOT", "begruendung": "Knapp 50 Cent pro Dose im Vorratspack.", "bild": null}, {"id": "netto_star_batterien", "produkt": "Star Super Energy Batterien 24er XXL (AA/AAA)", "marke": "Star", "haendler": "Netto Marken-Discount", "preis": 3.33, "menge": "24 Stück", "menge_wert": 24.0, "menge_einheit": "Stück", "grundpreis": 0.14, "grundpreis_einheit": "€/Stk.", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "Aktion XXL 24er Pack", "seite": 1, "kategorie": "Haushalt", "bewertung": "GUTES ANGEBOT", "begruendung": "Sehr nützlich vor Weihnachten für Spielzeug und Lichterketten (14 Cent/Batterie).", "bild": null}, {"id": "rewe_grapefruit", "produkt": "Frische Grapefruit rot (Klasse 1)", "marke": "Spanische Ernte", "haendler": "REWE", "preis": 0.55, "menge": "1 Stück", "menge_wert": 1.0, "menge_einheit": "Stück", "grundpreis": 0.55, "grundpreis_einheit": "€/Stk.", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "Knaller-Aktion", "seite": 1, "kategorie": "Obst & Gemüse", "bewertung": "SEHR GUTES SCHNÄPPCHEN", "begruendung": "55 Cent für frische Grapefruit ist ein Top-Frischeangebot.", "bild": "rewe_grapefruit.jpg"}, {"id": "rewe_milram_quark", "produkt": "Milram Frühlingsquark / Gewürzquark", "marke": "Milram", "haendler": "REWE", "preis": 0.99, "menge": "185 g", "menge_wert": 0.185, "menge_einheit": "kg", "grundpreis": 5.35, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "Statt 1.49 € (+0.10 € App-Bonus = effektiv 0.89 €)", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "GUTES ANGEBOT", "begruendung": "Perfekt zu Kartoffeln für ein schnelles Familienessen unter 1 Euro.", "bild": "rewe_milram.jpg"}, {"id": "rewe_kinder_bueno", "produkt": "Kinder Bueno (6er) oder Kinder Country (9er)", "marke": "Ferrero", "haendler": "REWE", "preis": 1.99, "menge": "211 g", "menge_wert": 0.211, "menge_einheit": "kg", "grundpreis": 9.43, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "-39% UVP 3.29 €", "seite": 1, "kategorie": "Süßes & Snacks", "bewertung": "GUTES ANGEBOT", "begruendung": "Sehr beliebter Familiensnack um fast 40% reduziert.", "bild": "rewe_kinder.jpg"}, {"id": "rewe_ehrmann_protein", "produkt": "Ehrmann High Protein Pudding oder Drink", "marke": "Ehrmann", "haendler": "REWE", "preis": 0.99, "menge": "200 g", "menge_wert": 0.2, "menge_einheit": "kg", "grundpreis": 4.95, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "Statt 1.49 €", "seite": 1, "kategorie": "Milch & Molkerei", "bewertung": "GUTES ANGEBOT", "begruendung": "Beliebter Protein-Pudding unter 1 Euro.", "bild": null}, {"id": "rewe_coca_cola", "produkt": "Coca-Cola / Fanta / Sprite (Kasten 12x1L)", "marke": "Coca-Cola", "haendler": "REWE", "preis": 11.99, "menge": "12 Liter (12x1L)", "menge_wert": 12.0, "menge_einheit": "l", "grundpreis": 1.0, "grundpreis_einheit": "€/L", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "Statt 16.99 € (+2.00 € App-Bonus = effektiv 9.99 € / 0.83 €/L)", "seite": 1, "kategorie": "Getränke", "bewertung": "GUTES ANGEBOT", "begruendung": "1 Euro pro Flasche (mit App sogar 0,83 €/L) für den Familienvorrat.", "bild": null}, {"id": "rewe_rinder_rouladen", "produkt": "Rinder-Rouladen, -Braten oder -Gulasch (Bedientheke)", "marke": "REWE Qualitätsmetzgerei", "haendler": "REWE", "preis": 19.9, "menge": "1 kg (aus der Keule)", "menge_wert": 1.0, "menge_einheit": "kg", "grundpreis": 19.9, "grundpreis_einheit": "€/kg", "zeitraum": "23.11.2026 – 28.11.2026", "bedingungen": "Knaller-Aktion (1.99 € je 100g)", "seite": 1, "kategorie": "Fleisch & Geflügel", "bewertung": "NORMALER PREIS", "begruendung": "Feine Metzgerqualität von der Theke für Festtagsgerichte. Für die alltägliche Spar-Küche ist das Netto-Hackfleisch (6,98 €/kg) günstiger.", "bild": null}];
         const BROCHURES = {"aldi": {"title": "ALDI Nord", "pdf_url": "brochures/aldi/ALDI_Nord.pdf", "pages": 49, "page_pattern": "brochures/aldi/p_{}.jpg"}, "penny": {"title": "PENNY", "pdf_url": "brochures/penny/PENNY.pdf", "pages": 17, "page_pattern": "brochures/penny/p_{}.jpg"}, "netto": {"title": "Netto Marken-Discount", "pdf_url": "brochures/netto/Netto_Marken_Discount.pdf", "pages": 36, "page_pattern": "brochures/netto/p_{}.jpg"}, "rewe": {"title": "REWE", "pdf_url": "brochures/rewe/REWE.pdf", "pages": 32, "page_pattern": "brochures/rewe/p_{}.jpg"}};
+        const WEEK_ID = "2026-KW48";
+        const BROCHURE_STATE_KEY = 'familie_brochure_state';
 
         let activeStoreFilter = 'all';
-        let currentBrochureKey = 'aldi';
+        let currentBrochureKey = Object.keys(BROCHURES)[0] || 'aldi';
         let currentBrochurePage = 1;
+        let brochurePages = {};
         let shoppingList = JSON.parse(localStorage.getItem('familie_shopping_list') || '[]');
+        let quickAddFeedbackTimer = null;
+
+        // Gemerkte Prospektseiten pro Markt laden (startet bei neuer Woche automatisch auf Seite 1)
+        function loadBrochureState() {
+            try {
+                const raw = localStorage.getItem(BROCHURE_STATE_KEY);
+                if (!raw) return;
+                const saved = JSON.parse(raw);
+                if (saved && saved.week === WEEK_ID) {
+                    if (saved.pages && typeof saved.pages === 'object') {
+                        brochurePages = saved.pages;
+                    }
+                    if (saved.activeStore && BROCHURES[saved.activeStore]) {
+                        currentBrochureKey = saved.activeStore;
+                    }
+                    const b = BROCHURES[currentBrochureKey];
+                    const savedPage = parseInt(brochurePages[currentBrochureKey], 10);
+                    if (b && savedPage >= 1 && savedPage <= b.pages) {
+                        currentBrochurePage = savedPage;
+                    }
+                }
+            } catch (e) {
+                brochurePages = {};
+            }
+        }
+
+        function saveBrochureState() {
+            brochurePages[currentBrochureKey] = currentBrochurePage;
+            try {
+                localStorage.setItem(BROCHURE_STATE_KEY, JSON.stringify({
+                    week: WEEK_ID,
+                    activeStore: currentBrochureKey,
+                    pages: brochurePages
+                }));
+            } catch (e) {}
+        }
 
         // Tab Switching
         function switchTab(tabId, el) {
@@ -1117,6 +1293,14 @@
             el.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (tabId === 'list') renderShoppingList();
+
+            const fab = document.getElementById('fabAddBtn');
+            if (fab) {
+                fab.classList.toggle('visible', tabId === 'flyer');
+            }
+            if (tabId !== 'flyer') {
+                closeQuickAddSheet();
+            }
         }
 
         // Render Deals
@@ -1334,10 +1518,90 @@
             updateListBadge();
         }
 
+        // Quick-Add Bottom Sheet im Prospekt-Tab
+        function openQuickAddSheet() {
+            const b = BROCHURES[currentBrochureKey];
+            const storeSelect = document.getElementById('quickItemStore');
+            if (b && storeSelect) {
+                storeSelect.value = b.title;
+            }
+            document.getElementById('quickAddFeedback').innerText = '';
+            document.getElementById('quickAddFeedback').classList.remove('error');
+            document.getElementById('quickAddBackdrop').classList.add('open');
+            document.getElementById('quickAddSheet').classList.add('open');
+            setTimeout(() => {
+                const nameInput = document.getElementById('quickItemName');
+                if (nameInput) nameInput.focus();
+            }, 180);
+        }
+
+        function closeQuickAddSheet() {
+            const backdrop = document.getElementById('quickAddBackdrop');
+            const sheet = document.getElementById('quickAddSheet');
+            if (backdrop) backdrop.classList.remove('open');
+            if (sheet) sheet.classList.remove('open');
+        }
+
+        function submitQuickAdd() {
+            const nameInput = document.getElementById('quickItemName');
+            const storeSelect = document.getElementById('quickItemStore');
+            const priceInput = document.getElementById('quickItemPrice');
+            const feedbackEl = document.getElementById('quickAddFeedback');
+
+            const title = nameInput.value.trim();
+            if (!title) {
+                feedbackEl.classList.add('error');
+                feedbackEl.innerText = 'Bitte gib zuerst einen Artikel ein.';
+                nameInput.focus();
+                return;
+            }
+
+            let price = 0.0;
+            const rawPrice = priceInput.value.trim().replace(',', '.').replace('€', '').trim();
+            if (rawPrice !== '') {
+                const parsed = parseFloat(rawPrice);
+                if (isNaN(parsed) || parsed < 0) {
+                    feedbackEl.classList.add('error');
+                    feedbackEl.innerText = 'Bitte einen gültigen Preis eingeben (z. B. 1,99) oder leer lassen.';
+                    priceInput.focus();
+                    return;
+                }
+                price = Math.round(parsed * 100) / 100;
+            }
+
+            const selectedStore = storeSelect.value || 'Sonstiges / Notizen';
+            shoppingList.push({
+                id: 'quick_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                title: title,
+                store: selectedStore,
+                price: price,
+                checked: false
+            });
+            saveShoppingList();
+
+            // Felder leeren, Markt bleibt für weitere Artikel von dieser Seite eingestellt
+            nameInput.value = '';
+            priceInput.value = '';
+            feedbackEl.classList.remove('error');
+            feedbackEl.innerText = `✓ ${title} hinzugefügt`;
+            if (quickAddFeedbackTimer) clearTimeout(quickAddFeedbackTimer);
+            quickAddFeedbackTimer = setTimeout(() => {
+                feedbackEl.innerText = '';
+            }, 2500);
+            nameInput.focus();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeQuickAddSheet();
+        });
+
         // Brochure Viewer Logic
         function changeBrochureStore(storeKey) {
             currentBrochureKey = storeKey;
-            currentBrochurePage = 1;
+            const b = BROCHURES[storeKey];
+            const savedPage = parseInt(brochurePages[storeKey], 10);
+            currentBrochurePage = (b && savedPage >= 1 && savedPage <= b.pages) ? savedPage : 1;
+            saveBrochureState();
             updateViewer();
         }
 
@@ -1354,11 +1618,17 @@
             
             const pdfLink = document.getElementById('originalPdfLink');
             pdfLink.href = b.pdf_url;
+
+            const storeSelector = document.getElementById('storeSelector');
+            if (storeSelector && storeSelector.value !== currentBrochureKey) {
+                storeSelector.value = currentBrochureKey;
+            }
         }
 
         function prevPage() {
             if (currentBrochurePage > 1) {
                 currentBrochurePage--;
+                saveBrochureState();
                 updateViewer();
             }
         }
@@ -1367,12 +1637,14 @@
             const b = BROCHURES[currentBrochureKey];
             if (currentBrochurePage < b.pages) {
                 currentBrochurePage++;
+                saveBrochureState();
                 updateViewer();
             }
         }
 
         // Init
         window.addEventListener('DOMContentLoaded', () => {
+            loadBrochureState();
             renderDeals(DEALS);
             updateListBadge();
             updateViewer();

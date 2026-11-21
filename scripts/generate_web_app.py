@@ -116,6 +116,20 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
     
     deals_json = json.dumps(deals_data["deals"], ensure_ascii=False)
     brochures_json = json.dumps(brochures_manifest, ensure_ascii=False)
+
+    # Wochen-Infos aus den Daten (statt fest eingetragen)
+    kw = deals_data.get("kw", "")
+    year = deals_data.get("year", "")
+    week_id = f"{year}-KW{kw}"  # Schlüssel, damit gemerkte Prospektseiten jede Woche neu starten
+    validity = deals_data.get("validity", "")
+
+    # Dynamische Optionen für die Prospekt-Auswahl (mit echten Seitenzahlen)
+    store_options_html = "\n".join(
+        f'                    <option value="{k}">{v["title"]} ({v["pages"]} Seiten)</option>'
+        for k, v in brochures_manifest.items()
+    )
+    first_brochure = next(iter(brochures_manifest.values()), {"pages": 1})
+    initial_pages = first_brochure["pages"]
     
     # Pre-render initiale Deals-Karten (SSR-Style für sofortige Sichtbarkeit)
     pre_rendered_cards = ""
@@ -563,6 +577,104 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
             cursor: not-allowed;
         }}
         
+        /* Schwebender "+"-Knopf im Prospekt-Tab */
+        .fab-add {{
+            position: fixed;
+            right: 18px;
+            bottom: 78px; /* über der unteren Navigation */
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: none;
+            background: var(--success);
+            color: white;
+            font-size: 2rem;
+            line-height: 1;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 60;
+            display: none; /* nur im Prospekt-Tab sichtbar */
+        }}
+        .fab-add.visible {{ display: block; }}
+
+        /* Eingabefenster (Bottom Sheet) */
+        .sheet-backdrop {{
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.35);
+            z-index: 90;
+            display: none;
+        }}
+        .sheet-backdrop.open {{ display: block; }}
+        .sheet {{
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            border-radius: 18px 18px 0 0;
+            padding: 16px 16px 22px 16px;
+            z-index: 100;
+            box-shadow: 0 -6px 20px rgba(0,0,0,0.2);
+            transform: translateY(110%);
+            transition: transform 0.22s ease-out;
+        }}
+        .sheet.open {{ transform: translateY(0); }}
+        .sheet-head {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }}
+        .sheet-title {{ font-weight: 800; font-size: 1.05rem; }}
+        .sheet-close {{
+            border: none;
+            background: #f1f5f9;
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            font-size: 1rem;
+            cursor: pointer;
+        }}
+        .sheet-label {{
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin: 8px 0 4px 0;
+        }}
+        .sheet-input {{
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }}
+        .sheet-row {{ display: flex; gap: 10px; }}
+        .sheet-row > div {{ flex: 1; }}
+        .sheet-actions {{ display: flex; gap: 10px; margin-top: 14px; }}
+        .sheet-btn {{
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }}
+        .sheet-btn-primary {{ background: var(--success); color: white; }}
+        .sheet-btn-secondary {{ background: #f1f5f9; color: var(--text-dark); }}
+        .sheet-feedback {{
+            min-height: 20px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--success);
+            text-align: center;
+        }}
+        .sheet-feedback.error {{ color: #dc2626; }}
+
         /* Meal Plan Tab */
         .meal-card {{
             background: white;
@@ -596,9 +708,9 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
     <div class="app-bar">
         <div class="app-title">
             🛒 Angebotsradar
-            <span class="app-badge">Langelsheim • KW 46</span>
+            <span class="app-badge">Langelsheim • KW {kw}</span>
         </div>
-        <div style="font-size: 0.8rem; opacity: 0.9;">09.11. – 14.11.</div>
+        <div style="font-size: 0.8rem; opacity: 0.9;">{validity}</div>
     </div>
 
     <div class="container">
@@ -647,15 +759,12 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
         <div id="tab-flyer" class="tab-content">
             <div class="viewer-controls">
                 <select id="storeSelector" class="viewer-select" onchange="changeBrochureStore(this.value)">
-                    <option value="aldi">ALDI Nord (44 Seiten)</option>
-                    <option value="penny">PENNY (48 Seiten)</option>
-                    <option value="netto">Netto Marken-Discount (75 Seiten)</option>
-                    <option value="rewe">REWE (28 Seiten)</option>
+{store_options_html}
                 </select>
                 
                 <div class="viewer-nav-row">
                     <button id="btnPrevPage" class="btn-nav-page" onclick="prevPage()">‹ Zurück</button>
-                    <span id="pageIndicator" style="font-weight: 700; font-size: 0.95rem;">Seite 1 / 44</span>
+                    <span id="pageIndicator" style="font-weight: 700; font-size: 0.95rem;">Seite 1 / {initial_pages}</span>
                     <button id="btnNextPage" class="btn-nav-page" onclick="nextPage()">Weiter ›</button>
                 </div>
             </div>
@@ -711,6 +820,45 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
 
     </div>
 
+    <!-- Schwebender "+"-Knopf im Prospekt-Tab -->
+    <button id="fabAddBtn" class="fab-add" onclick="openQuickAddSheet()" aria-label="Artikel zur Einkaufsliste hinzufügen" title="Artikel auf Einkaufsliste">+</button>
+
+    <!-- Eingabefenster (Bottom Sheet) über dem Prospekt -->
+    <div id="quickAddBackdrop" class="sheet-backdrop" onclick="closeQuickAddSheet()"></div>
+    <div id="quickAddSheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
+        <div class="sheet-head">
+            <span id="quickAddTitle" class="sheet-title">🛒 Auf die Einkaufsliste</span>
+            <button type="button" class="sheet-close" onclick="closeQuickAddSheet()" aria-label="Schließen">✕</button>
+        </div>
+
+        <label for="quickItemName" class="sheet-label">Artikel</label>
+        <input type="text" id="quickItemName" class="sheet-input" placeholder="z. B. Kaffee, Milch, Windeln..." onkeydown="if (event.key === 'Enter') {{ event.preventDefault(); submitQuickAdd(); }}">
+
+        <div class="sheet-row">
+            <div>
+                <label for="quickItemStore" class="sheet-label">Markt</label>
+                <select id="quickItemStore" class="sheet-input">
+                    <option value="ALDI Nord">ALDI Nord</option>
+                    <option value="PENNY">PENNY</option>
+                    <option value="Netto Marken-Discount">Netto Marken-Discount</option>
+                    <option value="REWE">REWE</option>
+                    <option value="Sonstiges / Notizen">Sonstiges / Notizen</option>
+                </select>
+            </div>
+            <div>
+                <label for="quickItemPrice" class="sheet-label">Preis (€, optional)</label>
+                <input type="text" id="quickItemPrice" class="sheet-input" inputmode="decimal" placeholder="z. B. 1,99" onkeydown="if (event.key === 'Enter') {{ event.preventDefault(); submitQuickAdd(); }}">
+            </div>
+        </div>
+
+        <div id="quickAddFeedback" class="sheet-feedback" aria-live="polite"></div>
+
+        <div class="sheet-actions">
+            <button type="button" class="sheet-btn sheet-btn-secondary" onclick="closeQuickAddSheet()">Fertig</button>
+            <button type="button" class="sheet-btn sheet-btn-primary" onclick="submitQuickAdd()">+ Hinzufügen</button>
+        </div>
+    </div>
+
     <!-- Bottom Tab Navigation -->
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('deals', this)">
@@ -735,11 +883,50 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
     <script>
         const DEALS = {deals_json};
         const BROCHURES = {brochures_json};
+        const WEEK_ID = "{week_id}";
+        const BROCHURE_STATE_KEY = 'familie_brochure_state';
 
         let activeStoreFilter = 'all';
-        let currentBrochureKey = 'aldi';
+        let currentBrochureKey = Object.keys(BROCHURES)[0] || 'aldi';
         let currentBrochurePage = 1;
+        let brochurePages = {{}};
         let shoppingList = JSON.parse(localStorage.getItem('familie_shopping_list') || '[]');
+        let quickAddFeedbackTimer = null;
+
+        // Gemerkte Prospektseiten pro Markt laden (startet bei neuer Woche automatisch auf Seite 1)
+        function loadBrochureState() {{
+            try {{
+                const raw = localStorage.getItem(BROCHURE_STATE_KEY);
+                if (!raw) return;
+                const saved = JSON.parse(raw);
+                if (saved && saved.week === WEEK_ID) {{
+                    if (saved.pages && typeof saved.pages === 'object') {{
+                        brochurePages = saved.pages;
+                    }}
+                    if (saved.activeStore && BROCHURES[saved.activeStore]) {{
+                        currentBrochureKey = saved.activeStore;
+                    }}
+                    const b = BROCHURES[currentBrochureKey];
+                    const savedPage = parseInt(brochurePages[currentBrochureKey], 10);
+                    if (b && savedPage >= 1 && savedPage <= b.pages) {{
+                        currentBrochurePage = savedPage;
+                    }}
+                }}
+            }} catch (e) {{
+                brochurePages = {{}};
+            }}
+        }}
+
+        function saveBrochureState() {{
+            brochurePages[currentBrochureKey] = currentBrochurePage;
+            try {{
+                localStorage.setItem(BROCHURE_STATE_KEY, JSON.stringify({{
+                    week: WEEK_ID,
+                    activeStore: currentBrochureKey,
+                    pages: brochurePages
+                }}));
+            }} catch (e) {{}}
+        }}
 
         // Tab Switching
         function switchTab(tabId, el) {{
@@ -749,6 +936,14 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
             el.classList.add('active');
             window.scrollTo({{ top: 0, behavior: 'smooth' }});
             if (tabId === 'list') renderShoppingList();
+
+            const fab = document.getElementById('fabAddBtn');
+            if (fab) {{
+                fab.classList.toggle('visible', tabId === 'flyer');
+            }}
+            if (tabId !== 'flyer') {{
+                closeQuickAddSheet();
+            }}
         }}
 
         // Render Deals
@@ -966,10 +1161,90 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
             updateListBadge();
         }}
 
+        // Quick-Add Bottom Sheet im Prospekt-Tab
+        function openQuickAddSheet() {{
+            const b = BROCHURES[currentBrochureKey];
+            const storeSelect = document.getElementById('quickItemStore');
+            if (b && storeSelect) {{
+                storeSelect.value = b.title;
+            }}
+            document.getElementById('quickAddFeedback').innerText = '';
+            document.getElementById('quickAddFeedback').classList.remove('error');
+            document.getElementById('quickAddBackdrop').classList.add('open');
+            document.getElementById('quickAddSheet').classList.add('open');
+            setTimeout(() => {{
+                const nameInput = document.getElementById('quickItemName');
+                if (nameInput) nameInput.focus();
+            }}, 180);
+        }}
+
+        function closeQuickAddSheet() {{
+            const backdrop = document.getElementById('quickAddBackdrop');
+            const sheet = document.getElementById('quickAddSheet');
+            if (backdrop) backdrop.classList.remove('open');
+            if (sheet) sheet.classList.remove('open');
+        }}
+
+        function submitQuickAdd() {{
+            const nameInput = document.getElementById('quickItemName');
+            const storeSelect = document.getElementById('quickItemStore');
+            const priceInput = document.getElementById('quickItemPrice');
+            const feedbackEl = document.getElementById('quickAddFeedback');
+
+            const title = nameInput.value.trim();
+            if (!title) {{
+                feedbackEl.classList.add('error');
+                feedbackEl.innerText = 'Bitte gib zuerst einen Artikel ein.';
+                nameInput.focus();
+                return;
+            }}
+
+            let price = 0.0;
+            const rawPrice = priceInput.value.trim().replace(',', '.').replace('€', '').trim();
+            if (rawPrice !== '') {{
+                const parsed = parseFloat(rawPrice);
+                if (isNaN(parsed) || parsed < 0) {{
+                    feedbackEl.classList.add('error');
+                    feedbackEl.innerText = 'Bitte einen gültigen Preis eingeben (z. B. 1,99) oder leer lassen.';
+                    priceInput.focus();
+                    return;
+                }}
+                price = Math.round(parsed * 100) / 100;
+            }}
+
+            const selectedStore = storeSelect.value || 'Sonstiges / Notizen';
+            shoppingList.push({{
+                id: 'quick_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                title: title,
+                store: selectedStore,
+                price: price,
+                checked: false
+            }});
+            saveShoppingList();
+
+            // Felder leeren, Markt bleibt für weitere Artikel von dieser Seite eingestellt
+            nameInput.value = '';
+            priceInput.value = '';
+            feedbackEl.classList.remove('error');
+            feedbackEl.innerText = `✓ ${{title}} hinzugefügt`;
+            if (quickAddFeedbackTimer) clearTimeout(quickAddFeedbackTimer);
+            quickAddFeedbackTimer = setTimeout(() => {{
+                feedbackEl.innerText = '';
+            }}, 2500);
+            nameInput.focus();
+        }}
+
+        document.addEventListener('keydown', (e) => {{
+            if (e.key === 'Escape') closeQuickAddSheet();
+        }});
+
         // Brochure Viewer Logic
         function changeBrochureStore(storeKey) {{
             currentBrochureKey = storeKey;
-            currentBrochurePage = 1;
+            const b = BROCHURES[storeKey];
+            const savedPage = parseInt(brochurePages[storeKey], 10);
+            currentBrochurePage = (b && savedPage >= 1 && savedPage <= b.pages) ? savedPage : 1;
+            saveBrochureState();
             updateViewer();
         }}
 
@@ -986,11 +1261,17 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
             
             const pdfLink = document.getElementById('originalPdfLink');
             pdfLink.href = b.pdf_url;
+
+            const storeSelector = document.getElementById('storeSelector');
+            if (storeSelector && storeSelector.value !== currentBrochureKey) {{
+                storeSelector.value = currentBrochureKey;
+            }}
         }}
 
         function prevPage() {{
             if (currentBrochurePage > 1) {{
                 currentBrochurePage--;
+                saveBrochureState();
                 updateViewer();
             }}
         }}
@@ -999,12 +1280,14 @@ def generate_spa_html(deals_data: dict, brochures_manifest: dict, web_dir: str):
             const b = BROCHURES[currentBrochureKey];
             if (currentBrochurePage < b.pages) {{
                 currentBrochurePage++;
+                saveBrochureState();
                 updateViewer();
             }}
         }}
 
         // Init
         window.addEventListener('DOMContentLoaded', () => {{
+            loadBrochureState();
             renderDeals(DEALS);
             updateListBadge();
             updateViewer();
